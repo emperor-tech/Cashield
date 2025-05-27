@@ -1,46 +1,37 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="text-2xl mb-4">Report a Crime</h1>
-<form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 p-6 shadow rounded" aria-label="Report a Crime Form">
-  @csrf
-  @guest
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="guest_name">Your Name (optional)</label>
-    <input type="text" name="guest_name" id="guest_name" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100" autocomplete="name">
-  </div>
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="guest_email">Your Email (optional)</label>
-    <input type="email" name="guest_email" id="guest_email" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100" autocomplete="email">
-  </div>
-  @endguest
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="campus">Campus</label>
-    <input type="text" name="campus" id="campus" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100" required>
-  </div>
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="location">Location</label>
-    <input type="text" name="location" id="location" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100" required>
-  </div>
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="description">Description</label>
-    <textarea name="description" id="description" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100" rows="4" required></textarea>
-  </div>
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="severity">Severity</label>
-    <select name="severity" id="severity" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100">
-      <option value="low">Low</option>
-      <option value="medium">Medium</option>
-      <option value="high">High</option>
-    </select>
-  </div>
-  <div class="mb-4">
-    <label class="inline-flex items-center text-gray-700 dark:text-gray-200"><input type="checkbox" name="anonymous" class="mr-2"> Report anonymously</label>
-  </div>
-  <div class="mb-4">
-    <label class="block text-gray-700 dark:text-gray-200" for="media">Attach Media (image/video, optional)</label>
-    <input type="file" name="media" id="media" accept="image/*,video/*" class="w-full border p-2 dark:bg-gray-900 dark:text-gray-100">
-  </div>
-  <button type="submit" class="bg-blue-800 dark:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">Submit</button>
-</form>
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-900 dark:text-blue-200">Report an Incident</h1>
+    <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="space-y-6">
+        @csrf
+        <div>
+            <label for="campus" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Campus</label>
+            <input type="text" name="campus" id="campus" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" required>
+        </div>
+        <div>
+            <label for="location" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Location</label>
+            <input type="text" name="location" id="location" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" required>
+        </div>
+        <div>
+            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Description</label>
+            <textarea name="description" id="description" rows="4" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" required></textarea>
+        </div>
+        <div>
+            <label for="severity" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Severity</label>
+            <select name="severity" id="severity" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+        <div>
+            <label for="media" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Attach Media (optional)</label>
+            <input type="file" name="media" id="media" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow transition">Submit Report</button>
+        </div>
+    </form>
+</div>
 @endsection

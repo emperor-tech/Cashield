@@ -1,9 +1,5 @@
-Options +FollowSymLinks
 <IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /cashield/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+    RewriteEngine On
+    RewriteRule ^$ public/index.php [L]
+    RewriteRule ^((?!public/).*)$ public/$1 [L,NC]
 </IfModule>
-Options -Indexes

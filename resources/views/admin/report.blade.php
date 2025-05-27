@@ -25,11 +25,11 @@
         <div class="text-gray-500">No comments yet.</div>
     @endforelse
 </div>
-<form method="POST" action="{{ route('admin.report.comment', $report->id) }}" class="bg-white p-4 rounded shadow">
+<form method="POST" action="/admin/report/{{ $report->id }}/comment" class="bg-white p-4 rounded shadow">
     @csrf
     <label class="block mb-2 font-semibold">Add Comment/Follow-up</label>
     <textarea name="comment" class="w-full border p-2 mb-2" rows="3" required></textarea>
     <button type="submit" class="bg-blue-800 text-white px-4 py-2 rounded">Add Comment</button>
 </form>
-<a href="{{ route('admin.index') }}" class="inline-block mt-4 text-blue-700 underline">&larr; Back to Dashboard</a>
+<a href="/admin" class="inline-block mt-4 text-blue-700 underline">&larr; Back to Dashboard</a>
 @endsection 

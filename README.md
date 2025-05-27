@@ -1,61 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Cashield: Real-Time Campus Crime Reporting System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Cashield** (derived from Campus Shield) is a modern, real-time crime reporting and safety platform designed for Nigerian school campuses. It empowers students, staff, and security personnel to report incidents, respond to emergencies, and foster a safer academic environment through technology.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚨 Project Background
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Project Title:** Campus Shield (Cashield)
+- **Purpose:** Final Year Project
+- **Author:** Abdullateef Babatunde, 400 Level Computer Science
+- **Institution:** Air Force Institute of Technology, Kaduna (AFIT.) (Faculty of Computing | Department of Computer Science)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🌟 Key Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. **Real-Time Crime Reporting**
+- Instantly report incidents (theft, assault, suspicious activity, etc.) with location, description, and media attachments.
+- Panic button for emergencies: triggers alerts, countdown, and optional live chat with responders.
+- Anonymous reporting option for sensitive cases.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 2. **Live Chat & Incident Collaboration**
+- Real-time chat between reporters and campus security after a panic alert or on report details.
+- Incident timeline: aggregates comments, chat, and status changes for each report.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. **Community Watch & Area Alerts**
+- Users can subscribe to area-based alerts (e.g., hostel, faculty, car park).
+- Manage alert subscriptions in user profile.
+- Receive push notifications for incidents in subscribed areas.
 
-## Laravel Sponsors
+### 4. **Gamification & Badges**
+- Earn badges for first report, five reports, first panic alert, and more.
+- Badges displayed on user profiles to encourage positive engagement.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 5. **Admin Dashboard & Analytics**
+- Visual analytics: charts for incident severity, frequency, and time trends.
+- Real-time incident feed for admins and security.
+- Interactive heatmap (Leaflet.js) showing incident hotspots on campus.
 
-### Premium Partners
+### 6. **User Profiles & Preferences**
+- Upload avatar, manage notification preferences, and view report/alert history.
+- See earned badges and community contributions.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+### 7. **Modern UI/UX**
+- Beautiful, responsive design with Tailwind CSS.
+- Dark mode, smooth feedback, and accessible forms.
+- Intuitive navigation with quick actions, notification bell, and user avatar.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠️ Technology Stack
+- **Backend:** Laravel (PHP)
+- **Frontend:** Blade, Tailwind CSS, Alpine.js
+- **Real-Time:** Laravel Echo, Pusher/WebSockets
+- **Maps:** Leaflet.js
+- **PDF/Export:** dompdf
+- **Database:** MySQL
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Getting Started
 
-## Security Vulnerabilities
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url>
+   cd cashield
+   ```
+2. **Install dependencies:**
+   ```bash
+   composer install
+   npm install && npm run build
+   ```
+3. **Environment setup:**
+   - Copy `.env.example` to `.env` and set your database and Pusher credentials.
+   - Run `php artisan key:generate`
+4. **Database migration & seeding:**
+   ```bash
+   php artisan migrate --seed
+   ```
+5. **Set permissions:**
+   ```bash
+   chmod -R 775 storage bootstrap/cache
+   ```
+6. **Serve the app:**
+   ```bash
+   php artisan serve
+   ```
+   Or configure Apache/Nginx as needed.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 📸 Screenshots
+> _We can add screenshots of the dashboard, report form, chat, admin analytics, and mobile view here._
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🤝 Contributing
+This project is a final year academic work. For suggestions, improvements, or bug reports, please open an issue or contact the author.
+
+---
+
+## 👨‍💻 Author
+**Abdullateef Babatunde**  
+400 Level Computer Science  
+[LinkedIn/GitHub/Email if desired]
+
+---
+
+## 📄 License
+This project is for academic purposes. For other uses, please contact the author.
+
+---
+
+## 💡 Inspiration
+Cashield is inspired by the need for safer campuses in Nigeria, leveraging technology to empower students and staff to take an active role in campus security.

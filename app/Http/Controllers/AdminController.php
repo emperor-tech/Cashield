@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AuthHelper;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\AuditLog;
@@ -31,7 +32,7 @@ class AdminController extends Controller
         $report->status = $request->status;
         $report->save();
         AuditLog::create([
-            'user_id' => auth()->id(),
+            'user_id' => AuthHelper::id(),
             'action' => 'update_status',
             'subject_type' => 'report',
             'subject_id' => $report->id,
@@ -52,11 +53,11 @@ class AdminController extends Controller
             'comment' => 'required|string',
         ]);
         $report->comments()->create([
-            'user_id' => auth()->id(),
+            'user_id' => AuthHelper::id(),
             'comment' => $request->comment,
         ]);
         AuditLog::create([
-            'user_id' => auth()->id(),
+            'user_id' => AuthHelper::id(),
             'action' => 'add_comment',
             'subject_type' => 'report',
             'subject_id' => $report->id,
@@ -84,7 +85,7 @@ class AdminController extends Controller
             fclose($handle);
         };
         AuditLog::create([
-            'user_id' => auth()->id(),
+            'user_id' => AuthHelper::id(),
             'action' => 'export_reports',
             'subject_type' => 'report',
             'subject_id' => 0,
@@ -98,7 +99,7 @@ class AdminController extends Controller
         $reports = \App\Models\Report::with('user')->get();
         $pdf = \PDF::loadView('admin.exports.reports_pdf', compact('reports'));
         AuditLog::create([
-            'user_id' => auth()->id(),
+            'user_id' => AuthHelper::id(),
             'action' => 'export_reports',
             'subject_type' => 'report',
             'subject_id' => 0,

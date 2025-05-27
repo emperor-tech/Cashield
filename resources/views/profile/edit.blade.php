@@ -8,14 +8,52 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+                <div x-data="{ activeTab: window.location.hash ? window.location.hash.substring(1) : 'profile' }" class="max-w-xl">
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                        <nav class="flex space-x-8" aria-label="Profile sections">
+                            <button @click="activeTab = 'profile'; window.location.hash = 'profile'"
+                                    :class="{'border-b-2 border-blue-500': activeTab === 'profile'}"
+                                    class="py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                {{ __('Profile Information') }}
+                            </button>
+                            
+                            <button @click="activeTab = 'achievements'; window.location.hash = 'achievements'"
+                                    :class="{'border-b-2 border-blue-500': activeTab === 'achievements'}"
+                                    class="py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                {{ __('Achievements') }}
+                            </button>
+                            
+                            <button @click="activeTab = 'notifications'; window.location.hash = 'notifications'"
+                                    :class="{'border-b-2 border-blue-500': activeTab === 'notifications'}"
+                                    class="py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                {{ __('Notifications') }}
+                            </button>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
+                            <button @click="activeTab = 'password'; window.location.hash = 'password'"
+                                    :class="{'border-b-2 border-blue-500': activeTab === 'password'}"
+                                    class="py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                {{ __('Password') }}
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab Panels -->
+                    <div x-show="activeTab === 'profile'">
+                        @include('profile.partials.update-profile-information-form')
+                    </div>
+
+                    <div x-show="activeTab === 'achievements'" class="max-w-4xl">
+                        <user-achievements :user="{{ json_encode(auth()->user()) }}"></user-achievements>
+                    </div>
+
+                    <div x-show="activeTab === 'notifications'">
+                        @include('profile.partials.notifications-form')
+                    </div>
+
+                    <div x-show="activeTab === 'password'">
+                        @include('profile.partials.update-password-form')
+                    </div>
                 </div>
             </div>
 
@@ -26,33 +64,8 @@
             </div>
         </div>
     </div>
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-8">
-        <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Your Reports</h3>
-            <table class="w-full bg-white dark:bg-gray-800 shadow rounded" aria-label="Your Reports Table">
-                <thead>
-                    <tr class="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                        <th class="p-2">Campus</th>
-                        <th class="p-2">Location</th>
-                        <th class="p-2">Severity</th>
-                        <th class="p-2">Date</th>
-                        <th class="p-2">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($reports as $r)
-                    <tr class="border-t border-gray-200 dark:border-gray-700">
-                        <td class="p-2">{{ $r->campus }}</td>
-                        <td class="p-2">{{ $r->location }}</td>
-                        <td class="p-2 capitalize @if($r->severity=='high')text-red-600 @elseif($r->severity=='medium')text-yellow-600 @else text-green-600 @endif">{{ $r->severity }}</td>
-                        <td class="p-2">{{ $r->created_at->format('M d, Y H:i') }}</td>
-                        <td class="p-2 capitalize">{{ $r->status ?? 'open' }}</td>
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="p-2 text-center">No reports yet.</td></tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+
+    @push('scripts')
+        @vite(['resources/js/components/NotificationPreferences.vue', 'resources/js/components/UserAchievements.vue'])
+    @endpush
 </x-app-layout>

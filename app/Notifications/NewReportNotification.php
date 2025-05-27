@@ -71,10 +71,55 @@ class NewReportNotification extends Notification implements ShouldBroadcast, Sho
 
     public function toWebPush($notifiable, $notification = null)
     {
+        $severity = strtolower($this->report->severity);
+        $soundFile = "notification-{$severity}.mp3";
+        $urgencyLevel = $severity === 'high' ? 'high' : ($severity === 'medium' ? 'normal' : 'low');
+        
         return (new WebPushMessage)
-            ->title('New Crime Report')
-            ->icon('/icon.png')
-            ->body('A new report has been submitted on campus!')
-            ->action('View', url('/reports/' . $this->report->id));
+            ->title($this->getSeverityTitle())
+            ->icon($this->getSeverityIcon())
+            ->body($this->getNotificationBody())
+            ->action('View Report', url('/reports/' . $this->report->id))
+            ->action('Send Help', url('/reports/' . $this->report->id . '/respond'))
+            ->badge('/badges/alert-badge.png')
+            ->dir('auto')
+            ->image($this->report->media_path ? url('storage/' . $this->report->media_path) : null)
+            ->lang('en')
+            ->renotify(true)
+            ->requireInteraction($severity === 'high')
+            ->tag('report-' . $this->report->id)
+            ->timestamp($this->report->created_at->timestamp)
+            ->urgency($urgencyLevel)
+            ->vibrate([100, 50, 100])
+            ->data([
+                'report_id' => $this->report->id,
+                'sound' => asset('sounds/' . $soundFile),
+                'url' => url('/reports/' . $this->report->id)
+            ]);
+    }
+
+    private function getSeverityTitle(): string
+    {
+        return match(strtolower($this->report->severity)) {
+            'high' => '🚨 URGENT: Campus Security Alert!',
+            'medium' => '⚠️ Campus Security Notice',
+            default => 'Campus Alert'
+        };
+    }
+
+    private function getSeverityIcon(): string
+    {
+        return match(strtolower($this->report->severity)) {
+            'high' => '/icons/urgent-alert.png',
+            'medium' => '/icons/warning-alert.png',
+            default => '/icons/info-alert.png'
+        };
+    }
+
+    private function getNotificationBody(): string
+    {
+        $location = $this->report->location ? " at {$this->report->location}" : '';
+        $type = $this->report->type ? "{$this->report->type}: " : '';
+        return "{$type}{$this->report->description}{$location}";
     }
 }

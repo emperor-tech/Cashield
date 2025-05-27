@@ -2,8 +2,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Events\ReportCreated;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewReportNotification;
+use App\Helpers\AuthHelper;
 
 class ReportController extends Controller {
     public function index() {
@@ -66,19 +70,44 @@ class ReportController extends Controller {
             'location' => 'required|string',
             'note'     => 'nullable|string',
         ]);
+
+        // Get the user ID using our custom AuthHelper
+        $userId = AuthHelper::id();
+        
+        if (!$userId) {
+            // If no authenticated user, create an anonymous report
+            $userId = 1; // Use default "anonymous" user ID
+            \Illuminate\Support\Facades\Log::warning('Panic alert created without authentication');
+        }
+
         $data['campus'] = 'Unknown';
         $data['description'] = 'Panic Alert' . ($data['note'] ? (": " . $data['note']) : '');
         $data['severity'] = 'high';
         $data['anonymous'] = true;
-        $data['user_id'] = auth()->id();
-        $report = Report::create($data);
-        // broadcast to admins
-        \Notification::send(
-            \App\Models\User::where('role','admin')->get(),
-            new \App\Notifications\NewReportNotification($report)
-        );
-        // broadcast to public feed
-        ReportCreated::dispatch($report);
-        return redirect()->back()->with('success', 'Panic alert sent! Help is on the way.');
+        $data['user_id'] = $userId;
+
+        try {
+            $report = Report::create($data);
+            
+            // Notify all admin users
+            $admins = User::where('role', 'admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewReportNotification($report));
+            }
+            
+            // Broadcast to public feed
+            ReportCreated::dispatch($report);
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Panic alert sent! Help is on the way.'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to create panic report: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send panic alert. Please try again or contact emergency services directly.'
+            ], 500);
+        }
     }
 }

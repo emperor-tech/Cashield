@@ -60,4 +60,20 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function subscribeArea(Request $request)
+    {
+        $data = $request->validate(['area' => 'required|string|max:255']);
+        $exists = $request->user()->subscriptions()->where('area', $data['area'])->exists();
+        if (!$exists) {
+            $request->user()->subscriptions()->create($data);
+        }
+        return back()->with('success', 'Subscribed to area alerts!');
+    }
+
+    public function unsubscribeArea(Request $request, $area)
+    {
+        $request->user()->subscriptions()->where('area', $area)->delete();
+        return back()->with('success', 'Unsubscribed from area alerts.');
+    }
 }

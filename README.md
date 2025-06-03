@@ -63,8 +63,8 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone <repo-url>
-   cd cashield
+   git clone https://github.com/emperor-tech/Cashield.git
+   cd Cashield
    ```
 2. **Install dependencies:**
    ```bash
@@ -74,6 +74,9 @@
 3. **Environment setup:**
    - Copy `.env.example` to `.env` and set your database and Pusher credentials.
    - Run `php artisan key:generate`
+   ```bash
+   php artisan key:generate
+   ```
 4. **Database migration & seeding:**
    ```bash
    php artisan migrate --seed
@@ -91,7 +94,7 @@
 ---
 
 ## 📸 Screenshots
-> _We can add screenshots of the dashboard, report form, chat, admin analytics, and mobile view here._
+> _We would soon add screenshots of the dashboard, report form, chat, panic buton, admin analytics, and mobile view here._
 
 ---
 
@@ -100,11 +103,14 @@ This project is a final year academic work. For suggestions, improvements, or bu
 
 ---
 
-## 👨‍💻 Author
-**Abdullateef Babatunde**  
+## 👨‍💻 Author(s)
+- **Abdullateef Babatunde (Project Owner)**  
 400 Level Computer Science  
-[LinkedIn/GitHub/Email if desired]
+https://github.com/emperor-tech || https://x.com/big_babsss || oladejoabdullateef2005@gmail.com
 
+- **Amuda Rasheed (Contributor)**
+400 Level Computer Science
+https://github.com/techsalaf || https://linkedin.com/in/techsalaf || https://x.com/techsalaf || rasheed@my360school.com
 ---
 
 ## 📄 License
@@ -113,4 +119,4 @@ This project is for academic purposes. For other uses, please contact the author
 ---
 
 ## 💡 Inspiration
-Cashield is inspired by the need for safer campuses in Nigeria, leveraging technology to empower students and staff to take an active role in campus security.
+Cashield is inspired by the need for safer campuses in Nigeria especially my institution - AFIT Kaduna. The idea was born out of personal experiences and observations during my tenure at the institute. I aim to create a safe space where students feel secure while pursuing their education, leveraging technology to empower students and staff to take an active role in campus security.

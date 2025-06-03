@@ -12,7 +12,8 @@
         "laravel/framework": "^12.0",
         "laravel/reverb": "^1.5",
         "laravel/sanctum": "^4.1",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "pragmarx/google2fa-laravel": "^2.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -32,8 +33,6 @@
         },
         "files": [
             "app/helpers.php",
-            "app/helpers/auth_helper.php",
-            "app/helpers/auth_patch.php",
             "app/bootstrap.php"
         ],
         "classmap": [

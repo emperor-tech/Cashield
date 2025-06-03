@@ -7,20 +7,57 @@ use App\Models\Report;
 use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reports = Report::latest()->get();
-        $users = User::all();
-        $stats = [
-            'total_reports' => $reports->count(),
-            'total_users' => $users->count(),
-            'panic_alerts' => $reports->where('severity', 'high')->count(),
-            'today_reports' => $reports->where('created_at', '>=', now()->startOfDay())->count(),
-        ];
-        return view('admin.index', compact('reports', 'users', 'stats'));
+        $query = Report::query();
+        
+        // Apply filters
+        if ($request->filled('severity')) {
+            $query->where('severity', $request->severity);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('campus')) {
+            $query->where('campus', $request->campus);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Get paginated reports and statistics
+        $reports = $query->latest()->paginate(10);
+
+        // Cache statistics for 5 minutes to improve performance
+        $stats = Cache::remember('admin_dashboard_stats', 300, function() {
+            return [
+                'total_reports' => Report::count(),
+                'total_users' => User::count(),
+                'panic_alerts' => Report::where('severity', 'high')->count(),
+                'today_reports' => Report::where('created_at', '>=', now()->startOfDay())->count(),
+            ];
+        });
+
+        $severityStats = Report::getSeverityStats();
+        $statusStats = Report::getStatusCounts();
+        $campusStats = Report::getCampusStats();
+        $monthlyTrend = Report::getMonthlyTrend();
+
+        $viewData = compact('reports', 'stats', 'severityStats', 
+                           'statusStats', 'campusStats', 'monthlyTrend');
+
+        return view('admin.index', $viewData);
     }
 
     public function updateReportStatus(Request $request, Report $report)
@@ -107,4 +144,4 @@ class AdminController extends Controller
         ]);
         return $pdf->download('reports_' . now()->format('Ymd_His') . '.pdf');
     }
-} 
+}

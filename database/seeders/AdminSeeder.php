@@ -12,6 +12,7 @@ class AdminSeeder extends Seeder {
             'email' => 'admin@cashield.ng',
             'password' => Hash::make('securepass'),
             'role' => 'admin',
+            'safety_points' => 0,
         ]);
     }
 }

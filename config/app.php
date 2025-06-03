@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Facade;
+
 return [
 
     /*
@@ -13,9 +15,10 @@ return [
     |
     */
 
-    'aliases' => [
-        'Auth' => App\Facades\Auth::class,
-    ],
+    'aliases' => Facade::defaultAliases()->merge([
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+    ])->toArray(),
 
     /*
     |--------------------------------------------------------------------------
@@ -153,8 +156,7 @@ return [
         /*
          * Laravel Framework Service Providers...
          */
-        // Illuminate\Auth\AuthServiceProvider::class, // Commented out to use our custom auth provider
-        App\Providers\AuthServiceProvider::class, // Our custom auth provider
+        Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
         Illuminate\Bus\BusServiceProvider::class,
         Illuminate\Cache\CacheServiceProvider::class,
@@ -175,6 +177,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Illuminate\Pagination\PaginationServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -185,7 +188,7 @@ return [
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
-        // App\Providers\AuthServiceProvider::class, // Already loaded above
+        App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
     ],

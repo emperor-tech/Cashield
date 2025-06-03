@@ -51,6 +51,34 @@
     </div>
 </div>
 
+<!-- Emergency Reporting Section -->
+<div class="py-12 bg-red-600 dark:bg-red-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-white">
+                Emergency? Need Help?
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-red-100 lg:mx-auto">
+                Report an incident now - no login required
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a href="{{ route('reports.anonymous.create') }}" class="inline-flex justify-center items-center px-8 py-4 border border-transparent rounded-md shadow-lg text-lg font-medium text-red-600 bg-white hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
+                Report Anonymously
+            </a>
+            <a href="{{ route('reports.create') }}" class="inline-flex justify-center items-center px-8 py-4 border border-white rounded-md shadow-lg text-lg font-medium text-white hover:bg-red-700 transition duration-300 transform hover:scale-105">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Report as User
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Key Stats Section -->
 <div class="py-12 bg-white dark:bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

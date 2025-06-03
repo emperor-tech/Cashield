@@ -1,7 +1,79 @@
 <template>
   <div class="fixed bottom-4 right-4 z-50">
+    <!-- Error Modal -->
+    <div v-if="showError" class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+                  Error Sending Alert
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ errorMessage }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button @click="hideErrorModal" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div v-if="showSuccess" class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+                  Emergency Alert Sent
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ successMessage }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button @click="hideSuccessModal" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Panic Button -->
-    <div v-if="!isActive" @click="activatePanic" 
+    <div v-if="!isActive" @click.prevent="activatePanic" 
          class="bg-red-600 hover:bg-red-700 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-105 transition-transform">
       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -78,6 +150,10 @@ export default {
     const locationStatus = ref('Getting location...')
     const flashlightActive = ref(false)
     const alarmActive = ref(false)
+    const showError = ref(false)
+    const showSuccess = ref(false)
+    const errorMessage = ref('')
+    const successMessage = ref('')
     let countdownInterval
     let watchPositionId
     let currentPosition = null
@@ -88,11 +164,58 @@ export default {
       return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
     }
 
-    const activatePanic = async () => {
-      isActive.value = true
-      startCountdown()
-      await startLocationTracking()
-      emit('panic-activated', { location: currentPosition })
+    const activatePanic = async (event) => {
+      if (event) {
+        event.preventDefault();
+      }
+      
+      try {
+        isActive.value = true;
+        startCountdown();
+        await startLocationTracking();
+        
+        const response = await fetch('/api/panic', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify({
+            latitude: currentPosition?.lat,
+            longitude: currentPosition?.lng
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to send emergency alert');
+        }
+
+        successMessage.value = data.message;
+        showSuccess.value = true;
+        emit('panic-activated', { location: currentPosition });
+        
+        // Redirect to the report view page after 2 seconds
+        setTimeout(() => {
+          window.location.href = `/reports/${data.report_id}`;
+        }, 2000);
+      } catch (error) {
+        console.error('Panic activation error:', error);
+        errorMessage.value = error.message || 'Failed to send emergency alert. Please try again or contact security directly.';
+        showError.value = true;
+        isActive.value = false;
+        stopCountdown();
+        stopLocationTracking();
+      }
+    }
+
+    const hideSuccessModal = () => {
+      showSuccess.value = false;
+    }
+
+    const hideErrorModal = () => {
+      showError.value = false;
     }
 
     const cancelPanic = () => {
@@ -228,11 +351,17 @@ export default {
       locationStatus,
       flashlightActive,
       alarmActive,
+      showError,
+      showSuccess,
+      errorMessage,
+      successMessage,
       formatTime,
       activatePanic,
       cancelPanic,
       toggleFlashlight,
-      playAlarm
+      playAlarm,
+      hideSuccessModal,
+      hideErrorModal
     }
   }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
-use App\Helpers\AuthHelper;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,12 +20,7 @@ class AppServiceProvider extends ServiceProvider
             return new \Illuminate\Filesystem\Filesystem;
         });
         
-        // Replace the AuthManager with our custom version
-        $this->app->singleton('auth', function ($app) {
-            return new \App\Auth\CustomAuthManager($app);
-        });
-        
-        // We'll use a different approach to fix the issue
+        // Standard Laravel Auth is used, no custom auth manager needed
     }
 
     /**
@@ -32,29 +28,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Add a custom directive for auth checks
-        Blade::if('authcheck', function () {
-            return AuthHelper::check();
-        });
-        
-        // Add a custom directive for guest checks
-        Blade::if('guest', function () {
-            return !AuthHelper::check();
-        });
-        
-        // Add a custom directive for auth user
-        Blade::directive('authuser', function () {
-            return "<?php echo App\\Helpers\\AuthHelper::user() ? App\\Helpers\\AuthHelper::user()->name : ''; ?>";
-        });
-        
-        // Add a custom directive for auth id
-        Blade::directive('authid', function () {
-            return "<?php echo App\\Helpers\\AuthHelper::id() ?? 'null'; ?>";
-        });
-        
-        // Override Laravel's built-in auth directives to use our AuthHelper
+        // Register Tailwind pagination views
+        Paginator::defaultView('pagination::tailwind');
+        Paginator::defaultSimpleView('pagination::simple-tailwind');
+
+        // Use Laravel's built-in auth directives
         Blade::if('auth', function ($guard = null) {
-            return AuthHelper::check();
+            return Auth::check();
+        });
+
+        Blade::if('guest', function ($guard = null) {
+            return !Auth::check();
+        });
+
+        Blade::directive('authuser', function () {
+            return "<?php echo Auth::user() ? Auth::user()->name : ''; ?>";
+        });
+
+        Blade::directive('authid', function () {
+            return "<?php echo Auth::id() ?? 'null'; ?>";
         });
     }
 }

@@ -11,11 +11,11 @@ return [
             'app_id' => env('PUSHER_APP_ID', 'local'),
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER', 'mt1'),
-                'useTLS' => false,
                 'host' => '127.0.0.1',
-                'port' => 6001,
+                'port' => 8080,
                 'scheme' => 'http',
                 'encrypted' => false,
+                'useTLS' => false,
             ],
         ],
         'reverb' => [

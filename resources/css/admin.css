@@ -1,0 +1,293 @@
+/* Admin Panel Styles */
+
+/* Base Styles */
+.admin-layout {
+    @apply min-h-screen bg-gray-100 dark:bg-gray-900 flex;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    @apply fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0;
+}
+
+.admin-sidebar-header {
+    @apply flex items-center h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+}
+
+.admin-sidebar-nav {
+    @apply flex-1 overflow-y-auto;
+}
+
+/* Navigation Links */
+.admin-nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200;
+}
+
+.admin-nav-link.active {
+    @apply bg-blue-500 text-white dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700;
+}
+
+.admin-nav-link-child {
+    @apply flex items-center px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200;
+}
+
+.admin-nav-link-child.active {
+    @apply text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30;
+}
+
+/* Cards */
+.admin-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl backdrop-filter;
+}
+
+.admin-card-hover {
+    @apply hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transform hover:-translate-y-1 transition-all duration-200;
+}
+
+/* Stats Cards */
+.stats-card {
+    @apply admin-card admin-card-hover p-6 flex items-start justify-between;
+}
+
+.stats-content {
+    @apply flex-1;
+}
+
+.stats-title {
+    @apply text-sm font-medium text-gray-500 dark:text-gray-400;
+}
+
+.stats-value {
+    @apply mt-2 text-3xl font-bold text-gray-900 dark:text-white;
+}
+
+.stats-icon {
+    @apply p-3 rounded-xl text-2xl;
+}
+
+.stats-icon.blue {
+    @apply bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400;
+}
+
+.stats-icon.green {
+    @apply bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400;
+}
+
+.stats-icon.red {
+    @apply bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400;
+}
+
+.stats-icon.yellow {
+    @apply bg-yellow-100 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-400;
+}
+
+/* Charts */
+.chart-container {
+    @apply admin-card p-6;
+}
+
+.chart-header {
+    @apply flex items-center justify-between mb-6;
+}
+
+.chart-title {
+    @apply text-lg font-semibold text-gray-900 dark:text-white;
+}
+
+/* Tables */
+.admin-table {
+    @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.admin-table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-800/50;
+}
+
+.admin-table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white;
+}
+
+.admin-table tr {
+    @apply hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150;
+}
+
+/* Buttons */
+.admin-btn {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200;
+}
+
+.admin-btn-primary {
+    @apply admin-btn bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700;
+}
+
+.admin-btn-secondary {
+    @apply admin-btn bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-blue-500;
+}
+
+.admin-btn-icon {
+    @apply inline-flex items-center justify-center p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200;
+}
+
+/* Forms */
+.admin-form-group {
+    @apply space-y-2 mb-6;
+}
+
+.admin-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.admin-input {
+    @apply block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm transition-colors duration-200;
+}
+
+.admin-select {
+    @apply admin-input pr-10 bg-white dark:bg-gray-700 cursor-pointer;
+}
+
+/* Badges */
+.admin-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.admin-badge-blue {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+}
+
+.admin-badge-green {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+}
+
+.admin-badge-yellow {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+}
+
+.admin-badge-red {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+}
+
+.admin-badge-purple {
+    @apply bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400;
+}
+
+/* Alerts */
+.admin-alert {
+    @apply p-4 rounded-lg mb-4 flex items-center gap-3;
+}
+
+.admin-alert-success {
+    @apply admin-alert bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800;
+}
+
+.admin-alert-error {
+    @apply admin-alert bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800;
+}
+
+/* Main Content Area */
+.admin-main {
+    @apply p-6 lg:p-8 space-y-6 mt-0;
+}
+
+/* Grid Layouts */
+.admin-grid {
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.admin-grid-2 {
+    @apply grid grid-cols-1 gap-6 lg:grid-cols-2;
+}
+
+/* Loading States */
+.admin-loading {
+    @apply animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .admin-sidebar {
+        @apply fixed inset-y-0 left-0 z-50 transform -translate-x-full;
+    }
+    
+    .admin-main {
+        @apply lg:ml-0;
+    }
+}
+
+/* Animations */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Dark Mode Enhancements */
+.dark .admin-card {
+    @apply bg-gray-800 border-gray-700/50;
+}
+
+.dark .admin-table th {
+    @apply bg-gray-800/50 text-gray-400;
+}
+
+.dark .admin-btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.dark .admin-btn-secondary {
+    @apply bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600;
+}
+
+.dark .admin-input,
+.dark .admin-select {
+    @apply bg-gray-700 border-gray-600 text-white;
+}
+
+/* Transitions */
+.admin-transition {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+/* Search and Filters */
+.admin-filter {
+    @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4;
+}
+
+.admin-filter-group {
+    @apply flex flex-col sm:flex-row gap-4 items-start sm:items-center;
+}
+
+.admin-search {
+    @apply relative w-full;
+}
+
+.admin-search-input {
+    @apply block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors duration-200;
+}
+
+.admin-search-icon {
+    @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500;
+}
+
+.admin-select {
+    @apply block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors duration-200;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    appearance: none;
+}
+
+/* Dark mode select arrow */
+.dark .admin-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}

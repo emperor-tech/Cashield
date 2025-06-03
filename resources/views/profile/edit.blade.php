@@ -44,11 +44,11 @@
                     </div>
 
                     <div x-show="activeTab === 'achievements'" class="max-w-4xl">
-                        <user-achievements :user="{{ json_encode(auth()->user()) }}"></user-achievements>
+                        <div id="user-achievements" data-user="{{ json_encode(auth()->user()) }}"></div>
                     </div>
 
                     <div x-show="activeTab === 'notifications'">
-                        @include('profile.partials.notifications-form')
+                        <div id="notification-preferences"></div>
                     </div>
 
                     <div x-show="activeTab === 'password'">
@@ -64,8 +64,17 @@
             </div>
         </div>
     </div>
-
+    
     @push('scripts')
-        @vite(['resources/js/components/NotificationPreferences.vue', 'resources/js/components/UserAchievements.vue'])
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Profile page loaded');
+                // Force Vue components to mount again
+                if (typeof mountVueComponents === 'function') {
+                    console.log('Manually calling mountVueComponents');
+                    mountVueComponents();
+                }
+            });
+        </script>
     @endpush
 </x-app-layout>

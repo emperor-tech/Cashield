@@ -8,8 +8,8 @@
         <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
             @csrf
             <div>
-                <x-input-label for="email" :value="__('Email')" />
-                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                <x-input-label for="email" :value="__('Email')" class="text-gray-700 dark:text-gray-300" />
+                <x-text-input id="email" class="block mt-1 w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" type="email" name="email" :value="old('email')" required autofocus />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
             <div class="flex items-center justify-between mt-4">

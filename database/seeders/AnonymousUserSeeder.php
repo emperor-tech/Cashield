@@ -18,7 +18,8 @@ class AnonymousUserSeeder extends Seeder
                 'name' => 'Anonymous User',
                 'email' => 'anonymous@cashield.local',
                 'password' => Hash::make(Str::random(32)),
-                'role' => 'anonymous'
+                'role' => 'anonymous',
+                'safety_points' => 0
             ]);
         }
     }

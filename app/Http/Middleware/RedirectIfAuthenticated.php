@@ -2,10 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Helpers\AuthHelper;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
@@ -17,12 +16,11 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
-        try {
-            if (AuthHelper::check()) {
-                return redirect('/dashboard');
+        if (Auth::check()) {
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
             }
-        } catch (\Exception $e) {
-            Log::warning('Error in guest middleware: ' . $e->getMessage());
+            return redirect()->route('dashboard');
         }
 
         return $next($request);

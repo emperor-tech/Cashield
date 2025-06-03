@@ -10,7 +10,7 @@
     </header>
 
     <div class="mt-6">
-        <notification-preferences></notification-preferences>
+        <div id="notification-preferences"></div>
     </div>
 
     <div class="mt-6">

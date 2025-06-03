@@ -15,13 +15,44 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Get statistics
-        $stats = [
-            'total_reports' => Report::count(),
-            'total_users' => User::count(),
-            'panic_alerts' => Report::where('severity', 'high')->count(),
-            'today_reports' => Report::whereDate('created_at', Carbon::today())->count(),
-        ];
+        // Get current month and previous month dates
+        $now = Carbon::now();
+        $currentMonth = $now->startOfMonth();
+        $lastMonth = $now->copy()->subMonth();
+
+        // Get reports count for current and previous month
+        $currentMonthReports = Report::whereMonth('created_at', $currentMonth->month)
+            ->whereYear('created_at', $currentMonth->year)
+            ->count();
+        $lastMonthReports = Report::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->count();
+
+        // Calculate percentage increase
+        $reportIncrease = $lastMonthReports > 0 
+            ? round((($currentMonthReports - $lastMonthReports) / $lastMonthReports) * 100, 1)
+            : 0;
+
+        // Get users count for current and previous month
+        $currentMonthUsers = User::whereMonth('created_at', $currentMonth->month)
+            ->whereYear('created_at', $currentMonth->year)
+            ->count();
+        $lastMonthUsers = User::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->count();
+
+        // Calculate percentage increase for users
+        $userIncrease = $lastMonthUsers > 0 
+            ? round((($currentMonthUsers - $lastMonthUsers) / $lastMonthUsers) * 100, 1)
+            : 0;
+
+        // Get active alerts (high severity, unresolved reports)
+        $activeAlerts = Report::where('severity', 'high')
+            ->whereNotIn('status', ['resolved', 'closed'])
+            ->count();
+
+        // Get today's reports
+        $todayReports = Report::whereDate('created_at', Carbon::today())->count();
 
         // Get severity statistics
         $severityStats = Report::selectRaw('severity, count(*) as count')
@@ -36,11 +67,32 @@ class DashboardController extends Controller
             ->pluck('count', 'month')
             ->toArray();
 
-        // Get recent reports with pagination
-        $reports = Report::with(['user'])
+        // Get recent reports with pagination and relationships
+        $recentReports = Report::with(['user', 'category'])
             ->latest()
-            ->paginate(10);
+            ->take(10)
+            ->get()
+            ->map(function ($report) {
+                $report->status_color = match($report->status) {
+                    'open' => 'blue',
+                    'in_progress' => 'yellow',
+                    'resolved' => 'green',
+                    'closed' => 'gray',
+                    default => 'gray'
+                };
+                return $report;
+            });
 
-        return view('admin.index', compact('stats', 'severityStats', 'monthlyTrend', 'reports'));
+        return view('admin.index', [
+            'totalReports' => Report::count(),
+            'totalUsers' => User::count(),
+            'activeAlerts' => $activeAlerts,
+            'todayReports' => $todayReports,
+            'reportIncrease' => $reportIncrease,
+            'userIncrease' => $userIncrease,
+            'severityStats' => $severityStats,
+            'monthlyTrend' => $monthlyTrend,
+            'recentReports' => $recentReports
+        ]);
     }
 } 

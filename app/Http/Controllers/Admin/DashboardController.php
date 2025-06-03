@@ -60,12 +60,29 @@ class DashboardController extends Controller
             ->pluck('count', 'severity')
             ->toArray();
 
-        // Get monthly trend
-        $monthlyTrend = Report::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as count')
-            ->groupBy('month')
-            ->orderBy('month')
-            ->pluck('count', 'month')
-            ->toArray();
+        // Get monthly trend data for the last 6 months
+        $trendData = collect();
+        $trendLabels = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $count = Report::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $trendData->push($count);
+            $trendLabels->push($date->format('M Y'));
+        }
+
+        // Get category statistics
+        $categoryStats = Report::with('category')
+            ->whereHas('category')
+            ->get()
+            ->groupBy('category.name')
+            ->map(function ($group) {
+                return $group->count();
+            });
+
+        $categoryLabels = $categoryStats->keys()->toArray();
+        $categoryData = $categoryStats->values()->toArray();
 
         // Get recent reports with pagination and relationships
         $recentReports = Report::with(['user', 'category'])
@@ -92,7 +109,11 @@ class DashboardController extends Controller
             'userIncrease' => $userIncrease,
             'severityStats' => $severityStats,
             'monthlyTrend' => $monthlyTrend,
-            'recentReports' => $recentReports
+            'recentReports' => $recentReports,
+            'trendLabels' => $trendLabels,
+            'trendData' => $trendData,
+            'categoryLabels' => $categoryLabels,
+            'categoryData' => $categoryData
         ]);
     }
 } 

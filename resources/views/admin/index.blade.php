@@ -158,18 +158,18 @@
                     @forelse($recentReports ?? [] as $report)
                     <tr>
                         <td>#{{ $report->id }}</td>
-                        <td class="max-w-xs truncate">{{ $report->title }}</td>
+                        <td class="max-w-xs truncate">{{ Str::limit($report->description ?? 'No description', 50) }}</td>
                         <td>
-                            <span class="admin-badge admin-badge-{{ $report->category->color ?? 'blue' }}">
-                                {{ $report->category->name }}
+                            <span class="admin-badge admin-badge-{{ $report->category?->color ?? 'blue' }}">
+                                {{ $report->category?->name ?? 'Uncategorized' }}
                             </span>
                         </td>
                         <td>
                             <span class="admin-badge admin-badge-{{ $report->status_color }}">
-                                {{ $report->status }}
+                                {{ $report->status ?? 'unknown' }}
                             </span>
                         </td>
-                        <td>{{ $report->user->name }}</td>
+                        <td>{{ $report->user?->name ?? 'Anonymous' }}</td>
                         <td>{{ $report->created_at->format('M d, Y') }}</td>
                         <td>
                             <div class="flex items-center gap-2">

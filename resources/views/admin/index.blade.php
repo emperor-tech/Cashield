@@ -173,7 +173,7 @@
                         <td>{{ $report->created_at->format('M d, Y') }}</td>
                         <td>
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.reports.show', $report) }}" 
+                                <a href="{{ route('admin.report.show', $report) }}" 
                                    class="admin-btn-icon">
                                     <i class="fas fa-eye"></i>
                                 </a>

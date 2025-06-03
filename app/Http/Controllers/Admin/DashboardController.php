@@ -108,12 +108,11 @@ class DashboardController extends Controller
             'reportIncrease' => $reportIncrease,
             'userIncrease' => $userIncrease,
             'severityStats' => $severityStats,
-            'monthlyTrend' => $monthlyTrend,
-            'recentReports' => $recentReports,
             'trendLabels' => $trendLabels,
             'trendData' => $trendData,
             'categoryLabels' => $categoryLabels,
-            'categoryData' => $categoryData
+            'categoryData' => $categoryData,
+            'recentReports' => $recentReports
         ]);
     }
 } 

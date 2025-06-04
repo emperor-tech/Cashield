@@ -225,10 +225,4 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
 // Security Management Routes
 Route::prefix('admin/security')->name('admin.security.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [SecurityController::class, 'index'])->name('index');
-    Route::post('/teams', [SecurityController::class, 'store'])->name('teams.store');
-    Route::patch('/teams/{team}/toggle', [SecurityController::class, 'toggleTeam'])->name('teams.toggle');
-    Route::get('/teams/{team}', [SecurityController::class, 'show'])->name('teams.show');
-    Route::put('/teams/{team}', [SecurityController::class, 'update'])->name('teams.update');
-    Route::post('/teams/{team}/members', [SecurityController::class, 'addMember'])->name('teams.members.add');
-    Route::delete('/teams/{team}/members/{user}', [SecurityController::class, 'removeMember'])->name('teams.members.remove');
 });

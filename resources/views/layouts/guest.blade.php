@@ -45,5 +45,8 @@
                 </button>
             </div>
         </div>
+        
+        <!-- Panic Button Container -->
+        <div id="panic-button"></div>
     </body>
 </html>

@@ -178,7 +178,7 @@ class AnalyticsController extends Controller
         return [
             'average_response_time' => Report::where('created_at', '>=', $thisMonth)
                 ->whereNotNull('resolved_at')
-                ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, created_at, resolved_at)')),
+                ->avg(DB::raw('CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)')),
             
             'checkpoint_compliance' => $this->calculateCheckpointCompliance(),
             
@@ -251,7 +251,7 @@ class AnalyticsController extends Controller
                 ->count(),
             'average_resolution_time' => Report::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
                 ->whereNotNull('resolved_at')
-                ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, created_at, resolved_at)')),
+                ->avg(DB::raw('CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)')),
         ];
     }
 
@@ -286,9 +286,9 @@ class AnalyticsController extends Controller
             ->whereNotNull('resolved_at')
             ->select(
                 'severity',
-                DB::raw('avg(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as avg_response_time'),
-                DB::raw('min(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as min_response_time'),
-                DB::raw('max(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as max_response_time')
+                DB::raw('avg(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as avg_response_time'),
+                DB::raw('min(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as min_response_time'),
+                DB::raw('max(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as max_response_time')
             )
             ->groupBy('severity')
             ->get();
@@ -338,7 +338,7 @@ class AnalyticsController extends Controller
                 'zone_id',
                 DB::raw('count(*) as total_shifts'),
                 DB::raw('sum(case when status = "completed" then 1 else 0 end) as completed_shifts'),
-                DB::raw('avg(TIMESTAMPDIFF(MINUTE, start_time, end_time)) as avg_duration')
+                DB::raw('avg(CAST((julianday(end_time) - julianday(start_time)) * 1440 AS INTEGER)) as avg_duration')
             )
             ->groupBy('zone_id')
             ->with('zone:id,name')
@@ -354,7 +354,7 @@ class AnalyticsController extends Controller
             ->select(
                 'severity',
                 DB::raw('count(*) as count'),
-                DB::raw('avg(response_time) as avg_response_time')
+                DB::raw('avg(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as avg_response_time')
             )
             ->groupBy('severity')
             ->get();

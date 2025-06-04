@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -199,6 +200,8 @@ class UserController extends Controller
      */
     public function roles()
     {
+        Log::info('Accessed admin.users.roles route.');
+
         $roles = [
             'admin' => [
                 'name' => 'Administrator',
@@ -250,11 +253,10 @@ class UserController extends Controller
             ]
         ];
 
-        $users = User::select('id', 'name', 'email', 'role')
-                    ->orderBy('role')
-                    ->orderBy('name')
-                    ->get()
-                    ->groupBy('role');
+        // Fetch all users and group them by role
+        $users = User::all()->groupBy('role');
+
+        Log::info('Fetched and grouped users by role.', ['roles_found' => $users->keys()->toArray()]);
 
         return view('admin.users.roles', compact('roles', 'users'));
     }

@@ -8,7 +8,7 @@
     </div>
 
     <!-- Settings Form -->
-    <div class="admin-card">
+    <div class="admin-card p-6">
         <form action="{{ route('admin.settings.general') }}" method="POST" class="space-y-6">
             @csrf
             

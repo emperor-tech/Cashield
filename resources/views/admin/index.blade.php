@@ -19,7 +19,7 @@
                 <i class="fas fa-plus mr-2"></i>
                 New Report
             </button>
-        </div>
+    </div>
     </div>
 
     <!-- Stats Overview -->
@@ -138,12 +138,12 @@
                 <a href="{{ route('admin.reports.index') }}" class="admin-btn-secondary text-sm">
                     View All
                 </a>
-            </div>
-        </div>
+</div>
+</div>
         
         <div class="overflow-x-auto">
             <table class="admin-table">
-                <thead>
+    <thead>
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
@@ -152,9 +152,9 @@
                         <th>Reported By</th>
                         <th>Date</th>
                         <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+        </tr>
+    </thead>
+    <tbody>
                     @forelse($recentReports ?? [] as $report)
                     <tr>
                         <td>#{{ $report->id }}</td>
@@ -183,21 +183,21 @@
                                     <i class="fas fa-user-plus"></i>
                                 </button>
                             </div>
-                        </td>
-                    </tr>
+            </td>
+        </tr>
                     @empty
                     <tr>
                         <td colspan="7" class="text-center py-8">
                             <div class="flex flex-col items-center">
                                 <i class="fas fa-inbox text-4xl text-gray-400 dark:text-gray-600 mb-3"></i>
                                 <p class="text-gray-500 dark:text-gray-400">No recent reports found</p>
-                            </div>
+</div>
                         </td>
-                    </tr>
+        </tr>
                     @endforelse
-                </tbody>
-            </table>
-        </div>
+    </tbody>
+</table>
+</div>
     </div>
 </div>
 

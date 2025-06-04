@@ -9,20 +9,24 @@ import PanicButton from './components/PanicButton.vue';
 
 // Then import other dependencies
 import Echo from 'laravel-echo';
-window.Pusher = require('pusher-js');
+// Use ES Module import for Pusher
+import Pusher from 'pusher-js';
+window.Pusher = Pusher;
 
-// Set up Echo
+// Set up Echo with Reverb configuration
 window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: 'local',
-    wsHost: window.location.hostname,
-    wsPort: 6001,
+    broadcaster: 'reverb', // Use reverb broadcaster
+    key: import.meta.env.VITE_REVERB_APP_KEY, // Use the Reverb app key from .env
+    wsHost: import.meta.env.VITE_REVERB_HOST, // Use the Reverb host from .env
+    wsPort: import.meta.env.VITE_REVERB_PORT, // Use the Reverb port from .env
+    wssPort: import.meta.env.VITE_REVERB_PORT, // Use the Reverb port for WSS
     forceTLS: false,
     disableStats: true,
     enabledTransports: ['ws', 'wss'],
 });
 
-Echo.channel('test-channel')
+// Listen for a test event on the test channel using the window.Echo instance
+window.Echo.channel('test-channel')
     .listen('TestEvent', (e) => {
         console.log('Received event:', e);
     });

@@ -141,8 +141,11 @@ class ReportController extends Controller {
         try {
             $user = Auth::user();
             
+            // Allow unauthenticated users to create panic reports
+            // If user is not authenticated, user_id will be null
+
             $report = Report::create([
-                'user_id' => $user->id,
+                'user_id' => $user ? $user->id : null, // Set user_id to null if not authenticated
                 'description' => request('note') ?: 'PANIC BUTTON ACTIVATED - Immediate assistance required',
                 'location' => 'User\'s last known location',
                 'severity' => 'high',
@@ -156,14 +159,15 @@ class ReportController extends Controller {
                 'incident_date' => now(),
                 'status_history' => [[
                     'status' => 'open',
-                    'user_id' => $user->id,
+                    // Use user ID if authenticated, otherwise indicate anonymous
+                    'user_id' => $user ? $user->id : null,
                     'timestamp' => now()->toIso8601String(),
-                    'notes' => 'Initial panic alert created'
+                    'notes' => 'Initial panic alert created' . ($user ? '': ' (Anonymous)')
                 ]]
             ]);
 
-            // If there's a note, add it as a comment
-            if (request('note')) {
+            // If there's a note, add it as a comment only if authenticated
+            if (request('note') && $user) {
                 $report->comments()->create([
                     'user_id' => $user->id,
                     'content' => request('note'),

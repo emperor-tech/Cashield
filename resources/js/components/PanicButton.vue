@@ -73,7 +73,7 @@
     </div>
 
     <!-- Panic Button -->
-    <div v-if="!isActive" @click.prevent="activatePanic" 
+    <div v-if="!isActive" @click.prevent="console.log('Panic button clicked in template!'); activatePanic($event)" 
          class="bg-red-600 hover:bg-red-700 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-105 transition-transform">
       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -145,6 +145,7 @@ export default {
   },
 
   setup(props, { emit }) {
+    console.log('PanicButton component setup started.');
     const isActive = ref(false)
     const countdown = ref(props.initialCountdown)
     const locationStatus = ref('Getting location...')
@@ -169,6 +170,7 @@ export default {
         event.preventDefault();
       }
       
+      console.log('activatePanic called.');
       try {
         isActive.value = true;
         startCountdown();
@@ -186,24 +188,59 @@ export default {
           })
         });
 
-        const data = await response.json();
-        
-        if (!data.success) {
-          throw new Error(data.message || 'Failed to send emergency alert');
+        console.log('Fetch response received:', response);
+
+        // Check for non-OK response status first
+        if (!response.ok) {
+          let errorDetail = 'Unknown error occurred';
+          try {
+            // Attempt to parse JSON error response if available
+            const errorBody = await response.json();
+            errorDetail = errorBody.message || errorBody.error || JSON.stringify(errorBody);
+          } catch (jsonError) {
+            // If JSON parsing fails, read response as text (e.g., HTML error page)
+            try {
+              errorDetail = await response.text();
+            } catch (textError) {
+              console.error('Failed to read response body as text:', textError);
+              errorDetail = `Request failed with status ${response.status}`;
+            }
+          }
+          // Throw an error to be caught by the catch block
+          throw new Error(errorDetail);
         }
 
-        successMessage.value = data.message;
-        showSuccess.value = true;
-        emit('panic-activated', { location: currentPosition });
+        // If response is OK, proceed to parse JSON
+        const data = await response.json();
         
-        // Redirect to the report view page after 2 seconds
-        setTimeout(() => {
-          window.location.href = `/reports/${data.report_id}`;
-        }, 2000);
+        console.log('Parsed JSON data:', data);
+
+        if (data.success) {
+          console.log('Panic alert sent successfully. Showing success modal.');
+          successMessage.value = data.message;
+          showSuccess.value = true;
+          console.log('showSuccess value after setting:', showSuccess.value);
+          emit('panic-activated', { location: currentPosition });
+          
+          // Removed automatic redirect - the user will dismiss the modal
+          // setTimeout(() => {
+          //   console.log('Redirecting to report page...');
+          //   window.location.href = `/reports/${data.report_id}`;
+          // }, 2000);
+
+          // Store report_id to redirect on modal close if needed
+          // We can add a method to the success modal's OK button to handle redirection
+          // For now, the user will manually navigate or we can add a button
+
+        } else {
+          console.log('Panic alert failed. Showing error modal.', data.message);
+          throw new Error(data.message || 'Failed to send emergency alert');
+        }
       } catch (error) {
         console.error('Panic activation error:', error);
         errorMessage.value = error.message || 'Failed to send emergency alert. Please try again or contact security directly.';
         showError.value = true;
+        console.log('showError value after setting:', showError.value);
         isActive.value = false;
         stopCountdown();
         stopLocationTracking();
@@ -212,6 +249,10 @@ export default {
 
     const hideSuccessModal = () => {
       showSuccess.value = false;
+      // Optional: Redirect to the report page after closing the success modal
+      // if (this.successReportId) {
+      //   window.location.href = `/reports/${this.successReportId}`;
+      // }
     }
 
     const hideErrorModal = () => {
@@ -335,6 +376,7 @@ export default {
     }
 
     onMounted(() => {
+      console.log('PanicButton component mounted.');
       // Check for required permissions
       navigator.permissions.query({ name: 'geolocation' })
     })

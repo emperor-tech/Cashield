@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Error Sending Alert</h3>
                     <p class="text-gray-600 dark:text-gray-400">${message || 'Please try again or contact security directly.'}</p>
-                    <button onclick="closeStatusModal()" class="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-200">
+                    <button id="statusModalCloseButton" class="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-200">
                         Close
                     </button>
                 </div>
@@ -335,14 +335,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         statusModalContent.innerHTML = modalContent[status];
         statusModal.classList.remove('hidden');
+
+        // Add event listener to the close button if it exists in the current modal content
+        const closeButton = statusModalContent.querySelector('#statusModalCloseButton');
+        if (closeButton) {
+            closeButton.addEventListener('click', closeStatusModal);
+        }
     }
 
     function closeStatusModal() {
         statusModal.classList.add('hidden');
+        // Clear previous content
+        statusModalContent.innerHTML = '';
     }
 
     function sendPanicAlert(latitude, longitude) {
-        fetch('/panic', {
+        fetch('/api/panic', { // Corrected URL from /panic to /api/panic
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -353,7 +361,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 longitude: longitude
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check for non-OK response status first
+            if (!response.ok) {
+                let errorDetail = 'Unknown error occurred';
+                // Attempt to parse JSON error response if available
+                return response.json().then(errorBody => {
+                    errorDetail = errorBody.message || errorBody.error || JSON.stringify(errorBody);
+                    throw new Error(errorDetail);
+                }).catch(() => {
+                    // If JSON parsing fails, read response as text (e.g., HTML error page)
+                     return response.text().then(textError => {
+                         errorDetail = `Request failed with status ${response.status}: ${textError.substring(0, 200)}...`; // Limit text for brevity
+                         throw new Error(errorDetail);
+                     }).catch(textError => {
+                         console.error('Failed to read response body as text:', textError);
+                         errorDetail = `Request failed with status ${response.status}`;
+                         throw new Error(errorDetail);
+                     });
+                });
+            }
+            // If response is OK, proceed to parse JSON
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 showStatusModal('success');

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full" x-data="{ dark: localStorage.getItem('darkMode') === 'true' }" x-bind:class="{ 'dark': dark }">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Cashield') }}</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>{{ config('app.name', 'Cashield') }}</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
@@ -21,8 +21,8 @@
     
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <!-- Scripts -->
+
+        <!-- Scripts -->
     @stack('scripts')
     
     <!-- Leaflet JS -->
@@ -73,7 +73,7 @@
             @apply hover:bg-gray-50 dark:hover:bg-gray-700/50 transition;
         }
     </style>
-</head>
+    </head>
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900" x-data="{ mobileMenuOpen: false }" x-init="$watch('dark', val => localStorage.setItem('darkMode', val))">
 
         <!-- Main Navigation -->
@@ -89,13 +89,11 @@
                             Cashield
                         </a>
                         <div class="hidden md:flex items-center space-x-4 ml-10">
-                            <a href="{{ route('reports.index') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition {{ request()->routeIs('reports.*') ? 'bg-blue-900 text-white' : 'text-blue-100' }}">
-                                Report a Crime
-                            </a>
                             @auth
-                            <a href="{{ route('reports.create') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition {{ request()->routeIs('reports.create') ? 'bg-blue-900 text-white' : 'text-blue-100' }}">
-                                Submit Report
+                            <a href="{{ route('reports.index') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition {{ request()->routeIs('reports.*') ? 'bg-blue-900 text-white' : 'text-blue-100' }}">
+                                Reports Dashboard
                             </a>
+                            <a href="#" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition text-blue-100">Community Alerts</a>
                             @endauth
                             <div class="relative" x-data="{ resourcesOpen: false }">
                                 <button @click="resourcesOpen = !resourcesOpen" @click.away="resourcesOpen = false" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hover:text-white transition text-blue-100">
@@ -178,8 +176,11 @@
                 <!-- Mobile menu -->
                 <div x-show="mobileMenuOpen" class="md:hidden" style="display: none;">
                     <div class="px-2 pt-2 pb-3 space-y-1">
-                        <a href="{{ route('reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('reports.*') ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">Reports Dashboard</a>
                         @auth
+                        <a href="{{ route('reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('reports.*') ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">Reports Dashboard</a>
+                        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:bg-blue-700 hover:text-white">Community Alerts</a>
+                        <a href="{{ route('reports.create') }}" class="block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('reports.create') ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">Submit Report</a>
+                        @else
                         <a href="{{ route('reports.create') }}" class="block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('reports.create') ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">Submit Report</a>
                         @endauth
                         
@@ -198,7 +199,7 @@
                             </div>
                         </div>
 
-                        @auth
+                @auth
                         <div class="border-t border-blue-700 pt-4 pb-3">
                             <div class="px-4">
                                 <div class="text-base font-medium text-white">{{ Auth::user()->name }}</div>
@@ -218,7 +219,7 @@
                             <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:bg-blue-700 hover:text-white">Log in</a>
                             <a href="{{ route('register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:bg-blue-700 hover:text-white">Sign up</a>
                         </div>
-                        @endauth
+                @endauth
                     </div>
                 </div>
             </div>
@@ -315,17 +316,17 @@
                          <h2 class="text-xl font-bold mb-2 text-red-700 dark:text-red-500">Panic Alert</h2>
                         <p class="mb-4">Are you in danger? <span x-show="countdown > 0">Sending in <span class="font-bold" x-text="countdown"></span> seconds...</span></p>
                         <form x-ref="panicForm" method="POST" action="/api/panic" @submit="loading = true" enctype="multipart/form-data">
-                            @csrf
+                        @csrf
                             <input type="hidden" name="location" :value="location">
-                            <div class="mb-3">
+                        <div class="mb-3">
                                 <label class="block text-sm text-gray-700 dark:text-gray-300">Optional Note</label>
                                 <textarea name="note" x-model="note" class="w-full border dark:border-gray-600 p-2 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" rows="2"></textarea>
-                            </div>
-                            <div class="mb-3">
+                        </div>
+                        <div class="mb-3">
                                 <label class="block text-sm text-gray-700 dark:text-gray-300">Attach Audio/Video (optional)</label>
                                 <input type="file" accept="audio/*,video/*" @change="handleMedia($event, $event.target.files[0].type.startsWith('audio') ? 'audio' : 'video')" name="media" class="w-full text-gray-700 dark:text-gray-300">
-                            </div>
-                            <div class="flex justify-end space-x-2 mt-4">
+                        </div>
+                        <div class="flex justify-end space-x-2 mt-4">
                                 <button type="button" @click="cancelPanic()" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500">Cancel</button>
                                 <button type="submit" :disabled="loading || countdown > 0" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">Send Now</button>
                             </div>

@@ -199,7 +199,7 @@
             <header class="admin-header-nav">
                 <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
                     <button @click="sidebarOpen = !sidebarOpen" 
-                            class="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                            class="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                         <i class="fas fa-bars"></i>
                     </button>
 

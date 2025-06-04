@@ -13,13 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed users
         $this->call(AnonymousUserSeeder::class);
         $this->call(AdminSeeder::class);
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'safety_points' => 0,
-        ]);
+        
+        // Create test user if it doesn't exist
+        if (!User::where('email', 'test@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'safety_points' => 0,
+            ]);
+        }
+        
+        // Seed campus data
+        $this->call(ReportCategorySeeder::class);
+        $this->call(CampusZoneSeeder::class);
     }
 }

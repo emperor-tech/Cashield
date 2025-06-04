@@ -45,7 +45,7 @@ class HomeController extends Controller
 
         // Monthly trend for the current year
         $monthlyReports = Report::where('user_id', $user->id)
-            ->selectRaw('strftime("%m", created_at) as month, COUNT(*) as count')
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->whereYear('created_at', now()->year)
             ->groupBy('month')
             ->pluck('count', 'month')

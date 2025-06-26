@@ -26,11 +26,15 @@ class ShiftController extends Controller
                 $q->where('zone_id', $request->zone);
             })
             ->when($request->filled('status'), function($q) use ($request) {
-                $q->where('status', $request->status);
+                if ($request->status === 'active') {
+                    $q->whereNull('ended_at');
+                } elseif ($request->status === 'completed') {
+                    $q->whereNotNull('ended_at');
+                }
             })
             ->when($request->filled('date'), function($q) use ($request) {
                 $date = Carbon::parse($request->date);
-                $q->whereDate('start_time', $date);
+                $q->whereDate('started_at', $date);
             });
 
         $shifts = $query->latest()->paginate(15);
@@ -47,8 +51,11 @@ class ShiftController extends Controller
     {
         $teams = SecurityTeam::where('active', true)->get();
         $zones = CampusZone::where('active', true)->get();
+        $securityPersonnel = \App\Models\User::where('role', 'security')
+            ->where('is_active', true)
+            ->get();
 
-        return view('admin.security.shifts.create', compact('teams', 'zones'));
+        return view('admin.security.shifts.create', compact('teams', 'zones', 'securityPersonnel'));
     }
 
     /**

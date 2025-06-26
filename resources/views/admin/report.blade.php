@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <form method="POST" action="{{ route('admin.report.status', $report) }}" class="inline-flex">
+                <form method="POST" action="{{ route('admin.reports.status', $report) }}" class="inline-flex">
                     @csrf
                     @method('PATCH')
                     <select name="status" onchange="this.form.submit()" 
@@ -88,7 +88,7 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Comments</h3>
                 
                 <!-- Comment Form -->
-                <form action="{{ route('admin.report.comment', $report) }}" method="POST" class="mb-6">
+                <form action="{{ route('admin.reports.comments', $report) }}" method="POST" class="mb-6">
                     @csrf
                     <div class="flex items-start space-x-4">
                         <div class="flex-shrink-0">

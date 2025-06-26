@@ -72,22 +72,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reports/trend/{days}', [DashboardController::class, 'getTrendData'])->name('reports.trend');
     
     // User Management
+    Route::get('users/roles', [UserController::class, 'roles'])->name('users.roles');
     Route::resource('users', UserController::class);
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
-    Route::get('users/roles', [UserController::class, 'roles'])->name('users.roles');
     
-    // Report Management
-    Route::resource('reports', AdminReportController::class);
+    // Report Management - Specific routes must come BEFORE resource routes
     Route::get('reports/pending', [AdminReportController::class, 'pending'])->name('reports.pending');
     Route::get('reports/resolved', [AdminReportController::class, 'resolved'])->name('reports.resolved');
-    Route::patch('reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
-    Route::patch('reports/{report}/assign', [AdminReportController::class, 'assign'])->name('reports.assign');
-    Route::get('reports/{report}/history', [AdminReportController::class, 'history'])->name('reports.history');
     Route::get('reports/export', [AdminReportController::class, 'export'])->name('reports.export');
     Route::get('reports/export/csv', [AdminReportController::class, 'exportCsv'])->name('reports.export.csv');
     Route::get('reports/export/pdf', [AdminReportController::class, 'exportPdf'])->name('reports.export.pdf');
-    Route::patch('reports/{report}/status', [AdminReportController::class, 'updateStatus'])->name('report.status');
-    Route::get('reports/{report}', [AdminReportController::class, 'show'])->name('report.show');
+    Route::get('reports/{report}/history', [AdminReportController::class, 'history'])->name('reports.history');
+    Route::patch('reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
+    Route::patch('reports/{report}/assign', [AdminReportController::class, 'assign'])->name('reports.assign');
+    Route::patch('reports/{report}/status', [AdminReportController::class, 'updateStatus'])->name('reports.status');
+    Route::post('reports/{report}/comments', [AdminReportController::class, 'addComment'])->name('reports.comments');
+    Route::resource('reports', AdminReportController::class);
         
     // Report Categories
     Route::resource('reports/categories', ReportCategoryController::class)->names([

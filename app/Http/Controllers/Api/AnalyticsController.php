@@ -579,9 +579,9 @@ class AnalyticsController extends Controller
         if ($metrics->contains('resolution_time')) {
             $reportData['resolution_time'] = [
                 'average' => $query->clone()->whereNotNull('resolution_time')
-                    ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, created_at, resolution_time)')),
+                    ->avg('resolution_time'),
                 'by_severity' => $query->clone()->whereNotNull('resolution_time')
-                    ->select('severity', DB::raw('AVG(TIMESTAMPDIFF(MINUTE, created_at, resolution_time)) as avg_time'))
+                    ->select('severity', DB::raw('AVG(resolution_time) as avg_time'))
                     ->groupBy('severity')
                     ->pluck('avg_time', 'severity')
             ];

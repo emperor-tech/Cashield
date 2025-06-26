@@ -60,7 +60,7 @@
                 </div>
                 <div class="card-body p-0">
                     @php
-                        $activeShifts = \App\Models\SecurityShift::where('status', 'in_progress')
+                        $activeShifts = \App\Models\SecurityShift::whereNull('ended_at')
                             ->with(['team', 'zone'])
                             ->latest()
                             ->take(5)

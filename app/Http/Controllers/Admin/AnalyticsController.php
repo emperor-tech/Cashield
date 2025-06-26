@@ -123,8 +123,8 @@ class AnalyticsController extends Controller
         $checkpoints = ZoneCheckpoint::select('name', 'location')->get();
         
         // Get active patrol routes
-        $patrolRoutes = SecurityShift::where('status', 'in_progress')
-            ->select('team_id', 'patrol_route')
+        $patrolRoutes = SecurityShift::whereNull('ended_at')
+            ->select('team_id', 'route_data')
             ->with('team:id,name')
             ->get();
 
@@ -150,10 +150,10 @@ class AnalyticsController extends Controller
             'reports_today' => Report::whereDate('created_at', $today)->count(),
             'reports_this_month' => Report::whereDate('created_at', '>=', $thisMonth)->count(),
             'active_teams' => SecurityTeam::where('active', true)->count(),
-            'active_shifts' => SecurityShift::where('status', 'in_progress')->count(),
+            'active_shifts' => SecurityShift::whereNull('ended_at')->count(),
             'total_zones' => CampusZone::count(),
             'total_checkpoints' => ZoneCheckpoint::count(),
-            'pending_reports' => Report::where('status', 'pending')->count(),
+            'pending_reports' => Report::whereIn('status', ['open', 'in_progress'])->count(),
         ];
     }
 
@@ -178,7 +178,7 @@ class AnalyticsController extends Controller
         return [
             'average_response_time' => Report::where('created_at', '>=', $thisMonth)
                 ->whereNotNull('resolved_at')
-                ->avg(DB::raw('CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)')),
+                ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, created_at, resolved_at)')),
             
             'checkpoint_compliance' => $this->calculateCheckpointCompliance(),
             
@@ -190,7 +190,7 @@ class AnalyticsController extends Controller
                 ->map(function($team) {
                     return [
                         'team' => $team->name,
-                        'completed_shifts' => $team->shifts->where('status', 'completed')->count(),
+                        'completed_shifts' => $team->shifts->whereNotNull('ended_at')->count(),
                         'incidents_handled' => $team->shifts->flatMap->incidents->count(),
                     ];
                 }),
@@ -227,8 +227,9 @@ class AnalyticsController extends Controller
 
         return [
             'daily' => $days,
-            'categories' => Report::select('category', DB::raw('count(*) as count'))
-                ->groupBy('category')
+            'categories' => Report::select('category_id', DB::raw('count(*) as count'))
+                ->with('category:id,name')
+                ->groupBy('category_id')
                 ->get(),
             'severity' => Report::select('severity', DB::raw('count(*) as count'))
                 ->groupBy('severity')
@@ -247,11 +248,11 @@ class AnalyticsController extends Controller
                 ->where('status', 'resolved')
                 ->count(),
             'pending' => Report::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-                ->where('status', 'pending')
+                ->whereIn('status', ['open', 'in_progress'])
                 ->count(),
             'average_resolution_time' => Report::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-                ->whereNotNull('resolved_at')
-                ->avg(DB::raw('CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)')),
+                ->whereNotNull('resolution_time')
+                ->avg('resolution_time'),
         ];
     }
 
@@ -272,8 +273,9 @@ class AnalyticsController extends Controller
     private function getCategoryDistribution($dateRange)
     {
         return Report::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->select('category', DB::raw('count(*) as count'))
-            ->groupBy('category')
+            ->select('category_id', DB::raw('count(*) as count'))
+            ->with('category:id,name')
+            ->groupBy('category_id')
             ->get();
     }
 
@@ -286,9 +288,9 @@ class AnalyticsController extends Controller
             ->whereNotNull('resolved_at')
             ->select(
                 'severity',
-                DB::raw('avg(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as avg_response_time'),
-                DB::raw('min(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as min_response_time'),
-                DB::raw('max(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as max_response_time')
+                DB::raw('avg(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as avg_response_time'),
+                DB::raw('min(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as min_response_time'),
+                DB::raw('max(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as max_response_time')
             )
             ->groupBy('severity')
             ->get();
@@ -320,7 +322,7 @@ class AnalyticsController extends Controller
                 return [
                     'team' => $team->name,
                     'total_shifts' => $team->shifts->count(),
-                    'completed_shifts' => $team->shifts->where('status', 'completed')->count(),
+                    'completed_shifts' => $team->shifts->whereNotNull('ended_at')->count(),
                     'incidents_handled' => $team->shifts->flatMap->incidents->count(),
                     'average_response_time' => $team->shifts->flatMap->incidents->avg('response_time'),
                     'checkpoint_compliance' => $this->calculateTeamCheckpointCompliance($team),
@@ -337,8 +339,8 @@ class AnalyticsController extends Controller
             ->select(
                 'zone_id',
                 DB::raw('count(*) as total_shifts'),
-                DB::raw('sum(case when status = "completed" then 1 else 0 end) as completed_shifts'),
-                DB::raw('avg(CAST((julianday(end_time) - julianday(start_time)) * 1440 AS INTEGER)) as avg_duration')
+                DB::raw('sum(case when ended_at is not null then 1 else 0 end) as completed_shifts'),
+                DB::raw('avg(TIMESTAMPDIFF(MINUTE, started_at, ended_at)) as avg_duration')
             )
             ->groupBy('zone_id')
             ->with('zone:id,name')
@@ -354,7 +356,7 @@ class AnalyticsController extends Controller
             ->select(
                 'severity',
                 DB::raw('count(*) as count'),
-                DB::raw('avg(CAST((julianday(resolved_at) - julianday(created_at)) * 1440 AS INTEGER)) as avg_response_time')
+                DB::raw('avg(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) as avg_response_time')
             )
             ->groupBy('severity')
             ->get();
@@ -385,7 +387,7 @@ class AnalyticsController extends Controller
     private function getPatrolEfficiency($dateRange)
     {
         return SecurityShift::whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->where('status', 'completed')
+            ->whereNotNull('ended_at')
             ->with(['checkpoints', 'incidents'])
             ->get()
             ->map(function($shift) {

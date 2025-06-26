@@ -28,7 +28,8 @@ use Illuminate\Support\Str;
  * @property string $status
  * @property string|null $media_path
  * @property Carbon|null $response_time
- * @property Carbon|null $resolution_time
+ * @property Carbon|null $resolved_at
+ * @property int|null $resolution_time
  * @property int|null $category_id
  * @property int|null $sub_category_id
  * @property string $priority_level
@@ -65,7 +66,7 @@ class Report extends Model {
      */
     protected $fillable = [
         'user_id', 'campus', 'description', 'location', 'severity', 'anonymous', 'is_public',
-        'status', 'media_path', 'response_time', 'resolution_time', 'category_id', 
+        'status', 'media_path', 'response_time', 'resolution_time', 'resolved_at', 'category_id', 
         'sub_category_id', 'priority_level', 'assigned_team_id', 'assigned_user_id', 
         'resolution_notes', 'witness_count', 'evidence_files', 'location_meta', 
         'status_history', 'incident_date', 'is_panic', 'latitude', 'longitude',
@@ -86,7 +87,8 @@ class Report extends Model {
         'contact_info' => 'array',
         'evidence' => 'array',
         'response_time' => 'datetime',
-        'resolution_time' => 'datetime',
+        'resolved_at' => 'datetime',  // Use resolved_at for datetime
+        'resolution_time' => 'integer', // This should be integer (minutes)
         'incident_date' => 'datetime',
         'witness_count' => 'integer',
         'is_panic' => 'boolean',
@@ -159,9 +161,16 @@ class Report extends Model {
                 ];
                 $report->status_history = $history;
                 
-                // Set resolution_time if status changed to resolved
-                if ($report->status === 'resolved' && !$report->resolution_time) {
-                    $report->resolution_time = now();
+                // Set resolved_at and resolution_time if status changed to resolved
+                if ($report->status === 'resolved') {
+                    // Set the resolved_at timestamp
+                    $report->resolved_at = now();
+                    
+                    // Calculate resolution_time in minutes from creation to resolution
+                    if (!$report->resolution_time) {
+                        $createdAt = $report->created_at ?? $report->incident_date ?? now();
+                        $report->resolution_time = now()->diffInMinutes($createdAt);
+                    }
                 }
                 
                 // Fire status changed event
@@ -333,14 +342,14 @@ class Report extends Model {
         }
         
         // Add resolution event
-        if ($this->resolution_time) {
+        if ($this->resolved_at) {
             $events->push([
                 'type' => 'resolution',
                 'user' => $this->assignedUser ? $this->assignedUser->name : 'System',
                 'user_id' => $this->assigned_user_id,
                 'message' => 'Report resolved',
                 'notes' => $this->resolution_notes,
-                'created_at' => $this->resolution_time,
+                'created_at' => $this->resolved_at,
                 'id' => 'resolution-1'
             ]);
         }
@@ -409,9 +418,16 @@ class Report extends Model {
         ];
         $this->status_history = $history;
         
-        // Set resolution time if resolving
-        if ($status === 'resolved' && !$this->resolution_time) {
-            $this->resolution_time = now();
+        // Set resolved_at and resolution_time if resolving
+        if ($status === 'resolved') {
+            // Set the resolved_at timestamp
+            $this->resolved_at = now();
+            
+            // Calculate resolution_time in minutes from creation to resolution
+            if (!$this->resolution_time) {
+                $createdAt = $this->created_at ?? $this->incident_date ?? now();
+                $this->resolution_time = now()->diffInMinutes($createdAt);
+            }
         }
         
         $success = $this->save();
@@ -1005,6 +1021,61 @@ class Report extends Model {
             'invalid' => 'red',
             default => 'gray'
         };
+    }
+
+    /**
+     * Get the report history as a collection.
+     * This method converts the JSON status_history into a collection
+     * that can be used with Laravel's query builder methods.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function history()
+    {
+        $historyArray = $this->status_history ?? [];
+        $history = collect($historyArray);
+        
+        // Convert each history item to an object with the expected structure
+        return $history->map(function ($item, $index) use ($historyArray) {
+            // Determine action based on the status_history item
+            $action = 'update_status';
+            $details = [];
+            
+            if (isset($item['notes'])) {
+                if (str_contains($item['notes'], 'created')) {
+                    $action = 'create_report';
+                } elseif (str_contains($item['notes'], 'resolved')) {
+                    $action = 'resolve_report';
+                } elseif (str_contains($item['notes'], 'assigned')) {
+                    $action = 'assign_report';
+                }
+                
+                $details['notes'] = $item['notes'];
+            }
+            
+            // Add status change details
+            if (isset($item['status'])) {
+                $details['new_status'] = $item['status'];
+                
+                // Try to get old status from previous item
+                if ($index > 0) {
+                    $previousItem = $historyArray[$index - 1];
+                    $details['old_status'] = $previousItem['status'] ?? 'unknown';
+                } else {
+                    $details['old_status'] = 'new';
+                }
+            }
+            
+            return (object) [
+                'id' => uniqid(),
+                'user_id' => $item['user_id'] ?? null,
+                'user' => $item['user_id'] ? User::find($item['user_id']) : null,
+                'action' => $action,
+                'details' => $details,
+                'created_at' => isset($item['timestamp']) ? Carbon::parse($item['timestamp']) : $this->created_at,
+                'updated_at' => isset($item['timestamp']) ? Carbon::parse($item['timestamp']) : $this->updated_at,
+            ];
+        })->sortByDesc('created_at');
     }
 
     public function show(Report $report)

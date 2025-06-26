@@ -149,10 +149,25 @@
                 </div>
                 @endif
 
-                @if($report->resolution_time)
+                @if($report->resolved_at)
                 <div>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Resolution Time</h3>
-                    <p class="text-gray-900 dark:text-white">{{ $report->resolution_time->diffForHumans($report->created_at) }}</p>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Resolved At</h3>
+                    <p class="text-gray-900 dark:text-white">{{ $report->resolved_at->diffForHumans() }}</p>
+                </div>
+                @endif
+                
+                @if($report->resolution_time)
+                <div class="mt-4">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Resolution Duration</h3>
+                    <p class="text-gray-900 dark:text-white">
+                        @if($report->resolution_time < 60)
+                            {{ $report->resolution_time }} minutes
+                        @elseif($report->resolution_time < 1440)
+                            {{ floor($report->resolution_time / 60) }} hours {{ $report->resolution_time % 60 }} minutes
+                        @else
+                            {{ floor($report->resolution_time / 1440) }} days {{ floor(($report->resolution_time % 1440) / 60) }} hours
+                        @endif
+                    </p>
                 </div>
                 @endif
             </div>

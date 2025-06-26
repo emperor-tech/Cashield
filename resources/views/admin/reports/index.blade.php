@@ -122,7 +122,7 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="POST" action="{{ route('admin.report.status', $report) }}" class="inline-block">
+                                <form method="POST" action="{{ route('admin.reports.status', $report) }}" class="inline-block">
                                     @csrf
                                     @method('PATCH')
                                     <select name="status" onchange="this.form.submit()" 
@@ -138,7 +138,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center space-x-2">
-                                    <a href="{{ route('admin.report.show', $report) }}" 
+                                    <a href="{{ route('admin.reports.show', $report) }}" 
                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                                        title="View Details">
                                         <i class="fas fa-eye"></i>

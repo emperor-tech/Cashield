@@ -73,7 +73,13 @@
                         </td>
                         <td>
                             @if($report->resolution_time)
-                                {{ $report->resolution_time->diffForHumans($report->created_at) }}
+                                @if($report->resolution_time < 60)
+                                    {{ $report->resolution_time }} minutes
+                                @elseif($report->resolution_time < 1440)
+                                    {{ floor($report->resolution_time / 60) }} hours {{ $report->resolution_time % 60 }} minutes
+                                @else
+                                    {{ floor($report->resolution_time / 1440) }} days
+                                @endif
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif

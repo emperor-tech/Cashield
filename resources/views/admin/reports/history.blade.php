@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div>
-                <a href="{{ route('admin.report.show', $report) }}" class="admin-btn-secondary">
+                <a href="{{ route('admin.reports.show', $report) }}" class="admin-btn-secondary">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Report
                 </a>

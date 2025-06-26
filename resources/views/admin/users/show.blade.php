@@ -141,7 +141,7 @@
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <a href="{{ route('admin.report.show', $report) }}" 
+                                    <a href="{{ route('admin.reports.show', $report) }}" 
                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                                         View
                                     </a>
@@ -175,7 +175,7 @@
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <a href="{{ route('admin.report.show', $comment->report_id) }}" 
+                                    <a href="{{ route('admin.reports.show', $comment->report_id) }}" 
                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                                         View Report
                                     </a>

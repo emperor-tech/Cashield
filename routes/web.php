@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ReportCategoryController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 // Include authentication routes with web middleware
 Route::middleware('web')->group(function () {
@@ -175,6 +176,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('notifications/{notification}/stats', [NotificationController::class, 'getStats'])->name('notifications.stats');
         Route::resource('messages', MessageController::class)->except(['index']);
     });
+
+    Route::get('/notifications/json', [\App\Http\Controllers\Admin\NotificationController::class, 'adminNotifications'])->name('notifications.json');
+
+    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
 });
 
 // Security Resource API Routes

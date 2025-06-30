@@ -7,7 +7,7 @@
         <div>
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $team->name }}</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ $team->team_type }} Team - {{ $team->zone->name }}
+                {{ $team->team_type }} Team - {{ $team->zone?->name ?? 'Not assigned' }}
             </p>
         </div>
         <div class="flex items-center space-x-3">
@@ -39,16 +39,16 @@
                     <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Team Leader</label>
                     <div class="mt-1 flex items-center space-x-3">
                         <img class="h-8 w-8 rounded-full" 
-                             src="https://ui-avatars.com/api/?name={{ urlencode($team->leader->name) }}" 
-                             alt="{{ $team->leader->name }}">
-                        <span class="text-gray-900 dark:text-white">{{ $team->leader->name }}</span>
+                             src="https://ui-avatars.com/api/?name={{ urlencode($team->leader?->name ?? 'Not assigned') }}" 
+                             alt="{{ $team->leader?->name ?? 'Not assigned' }}">
+                        <span class="text-gray-900 dark:text-white">{{ $team->leader?->name ?? 'Not assigned' }}</span>
                     </div>
                 </div>
                 <div>
                     <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Zone Assignment</label>
                     <div class="mt-1 flex items-center space-x-2">
                         <i class="fas fa-map-marker-alt text-gray-400"></i>
-                        <span class="text-gray-900 dark:text-white">{{ $team->zone->name }}</span>
+                        <span class="text-gray-900 dark:text-white">{{ $team->zone?->name ?? 'Not assigned' }}</span>
                     </div>
                 </div>
                 <div>

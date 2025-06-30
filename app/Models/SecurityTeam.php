@@ -179,7 +179,7 @@ class SecurityTeam extends Model
      */
     public function primaryZone(): BelongsTo
     {
-        return $this->belongsTo(CampusZone::class, 'primary_zone_id');
+        return $this->belongsTo(CampusZone::class, 'zone_id');
     }
 
     /**

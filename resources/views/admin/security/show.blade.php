@@ -45,16 +45,16 @@
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Team Leader</dt>
                     <dd class="flex items-center mt-1">
                         <img class="h-8 w-8 rounded-full mr-2" 
-                             src="https://ui-avatars.com/api/?name={{ urlencode($team->leader->name) }}" 
-                             alt="{{ $team->leader->name }}">
-                        <span class="text-gray-900 dark:text-white">{{ $team->leader->name }}</span>
+                             src="https://ui-avatars.com/api/?name={{ urlencode($team->leader?->name ?? 'Not assigned') }}" 
+                             alt="{{ $team->leader?->name ?? 'Not assigned' }}">
+                        <span class="text-gray-900 dark:text-white">{{ $team->leader?->name ?? 'Not assigned' }}</span>
                     </dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Assigned Zone</dt>
                     <dd class="flex items-center mt-1">
                         <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
-                        <span class="text-gray-900 dark:text-white">{{ $team->zone->name }}</span>
+                        <span class="text-gray-900 dark:text-white">{{ $team->zone?->name ?? 'Not assigned' }}</span>
                     </dd>
                 </div>
                 <div>

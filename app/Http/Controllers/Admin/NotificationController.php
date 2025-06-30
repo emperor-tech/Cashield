@@ -340,4 +340,15 @@ class NotificationController extends Controller
                 return collect();
         }
     }
+
+    public function adminNotifications(Request $request)
+    {
+        $user = $request->user();
+        $notifications = $user->notifications()->latest()->take(10)->get();
+        $unreadCount = $user->unreadNotifications()->count();
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
+        ]);
+    }
 } 

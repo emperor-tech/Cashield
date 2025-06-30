@@ -36,46 +36,96 @@ class ZoneController extends Controller
      */
     public function store(Request $request)
     {
+        // Debug: Log the incoming request data
+        \Log::info('Zone creation request data:', $request->all());
+        
+        // Handle JSON fields conversion
+        $boundaries = [];
+        $operatingHours = [];
+        
+        // Convert boundaries_json to boundaries array
+        if ($request->has('boundaries_json') && !empty($request->boundaries_json)) {
+            try {
+                $boundariesData = json_decode($request->boundaries_json, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($boundariesData)) {
+                    $boundaries = $boundariesData;
+                }
+            } catch (\Exception $e) {
+                return back()->withInput()->withErrors(['boundaries_json' => 'Invalid JSON format for boundary points']);
+            }
+        }
+        
+        // Convert operating_hours_json to operating_hours array
+        if ($request->has('operating_hours_json') && !empty($request->operating_hours_json)) {
+            try {
+                $operatingHoursData = json_decode($request->operating_hours_json, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($operatingHoursData)) {
+                    $operatingHours = $operatingHoursData;
+                }
+            } catch (\Exception $e) {
+                return back()->withInput()->withErrors(['operating_hours_json' => 'Invalid JSON format for operating hours']);
+            }
+        }
+        
+        // Add converted data to request
+        $request->merge([
+            'boundaries' => $boundaries,
+            'operating_hours' => $operatingHours
+        ]);
+        
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'unique:campus_zones'],
             'description' => ['nullable', 'string'],
-            'boundaries' => ['required', 'array'],
+            'boundaries' => ['required', 'array', 'min:1'],
             'boundaries.*.lat' => ['required', 'numeric'],
             'boundaries.*.lng' => ['required', 'numeric'],
-            'operating_hours' => ['array'],
-            'operating_hours.*' => ['array'],
-            'restricted_access' => ['boolean'],
-            'security_level' => ['required', 'string'],
-            'patrol_frequency' => ['required', 'integer', 'min:0'],
+            'operating_hours' => ['nullable', 'array'],
+            'restricted_access' => ['nullable', 'boolean'],
+            'security_level' => ['required', 'string', 'in:minimum,standard,enhanced,maximum'],
+            'patrol_frequency' => ['required', 'integer', 'min:1'],
         ]);
 
-        $zone = CampusZone::create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-            'boundaries' => $request->boundaries,
-            'operating_hours' => $request->operating_hours,
-            'restricted_access' => $request->restricted_access,
-            'security_level' => $request->security_level,
-            'patrol_frequency' => $request->patrol_frequency,
-            'active' => true,
-        ]);
+        try {
+            $zone = CampusZone::create([
+                'name' => $request->name,
+                'code' => $request->code,
+                'description' => $request->description,
+                'boundaries' => $request->boundaries,
+                'operating_hours' => $request->operating_hours,
+                'restricted_access' => $request->boolean('restricted_access'),
+                'security_level' => $request->security_level,
+                'patrol_frequency' => $request->patrol_frequency,
+                'active' => true,
+            ]);
 
-        // Log action
-        AuditLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'create_zone',
-            'subject_type' => 'campus_zone',
-            'subject_id' => $zone->id,
-            'details' => [
-                'name' => $zone->name,
-                'code' => $zone->code,
-            ],
-        ]);
+            \Log::info('Zone created successfully:', ['zone_id' => $zone->id, 'zone_name' => $zone->name]);
 
-        return redirect()->route('admin.security.zones.index')
-            ->with('success', 'Zone created successfully.');
+            // Log action
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'create_zone',
+                'subject_type' => 'campus_zone',
+                'subject_id' => $zone->id,
+                'details' => [
+                    'name' => $zone->name,
+                    'code' => $zone->code,
+                ],
+            ]);
+
+            return redirect()->route('admin.security.zones.index')
+                ->with('success', 'Zone created successfully.');
+                
+        } catch (\Exception $e) {
+            \Log::error('Failed to create zone:', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to create zone: ' . $e->getMessage());
+        }
     }
 
     /**

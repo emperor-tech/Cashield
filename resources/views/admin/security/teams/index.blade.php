@@ -97,13 +97,13 @@
                         <div class="flex items-center text-sm">
                             <i class="fas fa-user-shield text-gray-400 w-5"></i>
                             <span class="text-gray-600 dark:text-gray-300">
-                                Leader: {{ $team->leader->name }}
+                                Leader: {{ $team->leader?->name ?? 'Not assigned' }}
                             </span>
                         </div>
                         <div class="flex items-center text-sm">
                             <i class="fas fa-map-marker-alt text-gray-400 w-5"></i>
                             <span class="text-gray-600 dark:text-gray-300">
-                                Zone: {{ $team->zone->name }}
+                                Zone: {{ $team->zone?->name ?? 'Not assigned' }}
                             </span>
                         </div>
                         <div class="flex items-center text-sm">

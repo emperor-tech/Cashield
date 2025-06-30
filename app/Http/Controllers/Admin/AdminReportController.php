@@ -113,12 +113,12 @@ class AdminReportController extends Controller
             foreach ($reports as $report) {
                 fputcsv($handle, [
                     $report->id,
-                    $report->campus,
+                    $report->campus ?? 'N/A',
                     $report->location,
                     $report->severity,
                     $report->status,
                     $report->description,
-                    $report->anonymous ? 'Anonymous' : $report->user->name,
+                    $report->anonymous ? 'Anonymous' : ($report->user ? $report->user->name : 'N/A'),
                     $report->created_at->format('Y-m-d H:i:s'),
                     $report->updated_at->format('Y-m-d H:i:s')
                 ]);
@@ -153,6 +153,7 @@ class AdminReportController extends Controller
             $filename = 'reports_' . now()->format('Ymd_His') . '.pdf';
         }
 
+        // Create PDF view
         $pdf = PDF::loadView('admin.exports.reports_pdf', compact('reports'));
 
         // Log the export

@@ -183,6 +183,14 @@ class SecurityTeam extends Model
     }
 
     /**
+     * Alias for primaryZone relationship for backward compatibility.
+     */
+    public function zone(): BelongsTo
+    {
+        return $this->primaryZone();
+    }
+
+    /**
      * Get all team members.
      */
     public function members(): BelongsToMany

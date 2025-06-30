@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\SecurityTeam;
+use PDF;
 
 class ReportController extends Controller
 {
@@ -58,16 +59,60 @@ class ReportController extends Controller
 
     public function exportCsv()
     {
-        $reports = Report::all();
-        // CSV export logic here
-        return response()->download('reports.csv');
+        $reports = Report::with('user')->get();
+        $filename = 'reports_' . now()->format('Ymd_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($reports) {
+            $handle = fopen('php://output', 'w');
+            
+            // Add headers
+            fputcsv($handle, [
+                'ID',
+                'Campus',
+                'Location',
+                'Severity',
+                'Status',
+                'Description',
+                'Reporter',
+                'Submitted',
+                'Last Updated'
+            ]);
+
+            // Add data
+            foreach ($reports as $report) {
+                fputcsv($handle, [
+                    $report->id,
+                    $report->campus ?? 'N/A',
+                    $report->location,
+                    $report->severity,
+                    $report->status,
+                    $report->description,
+                    $report->anonymous ? 'Anonymous' : ($report->user ? $report->user->name : 'N/A'),
+                    $report->created_at->format('Y-m-d H:i:s'),
+                    $report->updated_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function exportPdf()
     {
-        $reports = Report::all();
-        // PDF export logic here
-        return response()->download('reports.pdf');
+        $reports = Report::with('user')->get();
+        $filename = 'reports_' . now()->format('Ymd_His') . '.pdf';
+
+        // Create PDF view
+        $pdf = PDF::loadView('admin.exports.reports_pdf', compact('reports'));
+
+        return $pdf->download($filename);
     }
 
     public function updateStatus(Request $request, Report $report)
@@ -81,7 +126,10 @@ class ReportController extends Controller
      */
     public function create()
     {
-        return view('admin.reports.create');
+        $categories = \App\Models\ReportCategory::orderBy('name')->get();
+        $teams = \App\Models\SecurityTeam::where('active', true)->get();
+        $users = \App\Models\User::whereIn('role', ['security', 'admin'])->where('is_active', true)->get();
+        return view('admin.reports.create', compact('categories', 'teams', 'users'));
     }
 
     /**
@@ -108,7 +156,7 @@ class ReportController extends Controller
     public function edit(Report $report)
     {
         $users = User::where('role', 'security')->get();
-        $teams = SecurityTeam::where('is_active', true)->get();
+        $teams = SecurityTeam::where('active', true)->get();
         
         return view('admin.reports.edit', compact('report', 'users', 'teams'));
     }

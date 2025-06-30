@@ -55,40 +55,38 @@
                         @enderror
                     </div>
 
-                    <!-- Zone Type -->
+                    <!-- Security Level -->
                     <div>
-                        <label for="zone_type" class="admin-label">Zone Type</label>
-                        <select name="zone_type" 
-                                id="zone_type" 
-                                class="admin-select @error('zone_type') admin-input-error @enderror"
+                        <label for="security_level" class="admin-label">Security Level</label>
+                        <select name="security_level" 
+                                id="security_level" 
+                                class="admin-select @error('security_level') admin-input-error @enderror"
                                 required>
-                            <option value="">Select zone type...</option>
-                            <option value="academic" {{ old('zone_type') === 'academic' ? 'selected' : '' }}>Academic Building</option>
-                            <option value="residential" {{ old('zone_type') === 'residential' ? 'selected' : '' }}>Residential Area</option>
-                            <option value="recreational" {{ old('zone_type') === 'recreational' ? 'selected' : '' }}>Recreational Facility</option>
-                            <option value="parking" {{ old('zone_type') === 'parking' ? 'selected' : '' }}>Parking Area</option>
-                            <option value="administrative" {{ old('zone_type') === 'administrative' ? 'selected' : '' }}>Administrative Building</option>
-                            <option value="outdoor" {{ old('zone_type') === 'outdoor' ? 'selected' : '' }}>Outdoor Area</option>
+                            <option value="">Select security level...</option>
+                            <option value="minimum" {{ old('security_level') === 'minimum' ? 'selected' : '' }}>Minimum</option>
+                            <option value="standard" {{ old('security_level') === 'standard' ? 'selected' : '' }}>Standard</option>
+                            <option value="enhanced" {{ old('security_level') === 'enhanced' ? 'selected' : '' }}>Enhanced</option>
+                            <option value="maximum" {{ old('security_level') === 'maximum' ? 'selected' : '' }}>Maximum</option>
                         </select>
-                        @error('zone_type')
+                        @error('security_level')
                             <p class="admin-input-error-message">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Risk Level -->
+                    <!-- Restricted Access -->
                     <div>
-                        <label for="risk_level" class="admin-label">Risk Level</label>
-                        <select name="risk_level" 
-                                id="risk_level" 
-                                class="admin-select @error('risk_level') admin-input-error @enderror"
-                                required>
-                            <option value="">Select risk level...</option>
-                            <option value="low" {{ old('risk_level') === 'low' ? 'selected' : '' }}>Low</option>
-                            <option value="medium" {{ old('risk_level') === 'medium' ? 'selected' : '' }}>Medium</option>
-                            <option value="high" {{ old('risk_level') === 'high' ? 'selected' : '' }}>High</option>
-                            <option value="critical" {{ old('risk_level') === 'critical' ? 'selected' : '' }}>Critical</option>
-                        </select>
-                        @error('risk_level')
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="restricted_access" 
+                                   id="restricted_access" 
+                                   value="1"
+                                   class="admin-checkbox"
+                                   {{ old('restricted_access') ? 'checked' : '' }}>
+                            <label for="restricted_access" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Restricted Access Zone
+                            </label>
+                        </div>
+                        @error('restricted_access')
                             <p class="admin-input-error-message">{{ $message }}</p>
                         @enderror
                     </div>
@@ -144,16 +142,16 @@
 
                 <!-- Boundary Points -->
                 <div>
-                    <label for="boundary_points" class="admin-label">Boundary Points (JSON)</label>
-                    <textarea name="boundary_points" 
-                              id="boundary_points" 
+                    <label for="boundaries_json" class="admin-label">Boundary Points (JSON)</label>
+                    <textarea name="boundaries_json" 
+                              id="boundaries_json" 
                               rows="4" 
-                              class="admin-textarea @error('boundary_points') admin-input-error @enderror"
-                              placeholder='[{"lat": 14.123, "lng": 121.456}, {"lat": 14.124, "lng": 121.457}]'>{{ old('boundary_points') }}</textarea>
+                              class="admin-textarea @error('boundaries') admin-input-error @enderror"
+                              placeholder='[{"lat": 14.123, "lng": 121.456}, {"lat": 14.124, "lng": 121.457}]'>{{ old('boundaries_json') }}</textarea>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         Define zone boundaries as an array of coordinate objects
                     </p>
-                    @error('boundary_points')
+                    @error('boundaries')
                         <p class="admin-input-error-message">{{ $message }}</p>
                     @enderror
                 </div>
@@ -181,46 +179,20 @@
                         @enderror
                     </div>
 
-                    <!-- Max Response Time -->
+                    <!-- Operating Hours -->
                     <div>
-                        <label for="max_response_time" class="admin-label">Max Response Time (minutes)</label>
-                        <input type="number" 
-                               name="max_response_time" 
-                               id="max_response_time" 
-                               min="1"
-                               max="60"
-                               class="admin-input @error('max_response_time') admin-input-error @enderror"
-                               value="{{ old('max_response_time', 10) }}">
-                        @error('max_response_time')
+                        <label for="operating_hours_json" class="admin-label">Operating Hours (JSON)</label>
+                        <textarea name="operating_hours_json" 
+                                  id="operating_hours_json" 
+                                  rows="3" 
+                                  class="admin-textarea @error('operating_hours') admin-input-error @enderror"
+                                  placeholder='{"monday": {"open": "08:00", "close": "18:00"}, "tuesday": {"open": "08:00", "close": "18:00"}}'>{{ old('operating_hours_json') }}</textarea>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Define operating hours for each day of the week (optional)
+                        </p>
+                        @error('operating_hours')
                             <p class="admin-input-error-message">{{ $message }}</p>
                         @enderror
-                    </div>
-                </div>
-
-                <!-- Zone Status -->
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               name="is_active" 
-                               id="is_active" 
-                               value="1"
-                               class="admin-checkbox"
-                               {{ old('is_active', true) ? 'checked' : '' }}>
-                        <label for="is_active" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                            Active Zone
-                        </label>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               name="requires_escort" 
-                               id="requires_escort" 
-                               value="1"
-                               class="admin-checkbox"
-                               {{ old('requires_escort') ? 'checked' : '' }}>
-                        <label for="requires_escort" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                            Requires Security Escort
-                        </label>
                     </div>
                 </div>
             </div>
@@ -259,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Validate JSON for boundary points
-    const boundaryInput = document.getElementById('boundary_points');
+    const boundaryInput = document.getElementById('boundaries_json');
     boundaryInput.addEventListener('blur', function() {
         if (this.value.trim()) {
             try {
@@ -269,6 +241,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('admin-input-error');
             }
         }
+    });
+
+    // Validate JSON for operating hours
+    const operatingHoursInput = document.getElementById('operating_hours_json');
+    operatingHoursInput.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            try {
+                JSON.parse(this.value);
+                this.classList.remove('admin-input-error');
+            } catch (e) {
+                this.classList.add('admin-input-error');
+            }
+        }
+    });
+
+    // Simple form validation - no complex processing needed since server handles JSON conversion
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        console.log('Form submission started');
+        
+        // Validate JSON fields before submission
+        const boundariesJson = document.getElementById('boundaries_json').value;
+        const operatingHoursJson = document.getElementById('operating_hours_json').value;
+        
+        // Validate boundaries JSON if provided
+        if (boundariesJson.trim()) {
+            try {
+                const boundaries = JSON.parse(boundariesJson);
+                if (!Array.isArray(boundaries) || boundaries.length === 0) {
+                    e.preventDefault();
+                    alert('Boundary points must be a non-empty array');
+                    return false;
+                }
+                console.log('Boundaries JSON is valid');
+            } catch (error) {
+                e.preventDefault();
+                console.error('Boundary JSON parse error:', error);
+                alert('Invalid JSON format for boundary points');
+                return false;
+            }
+        }
+        
+        // Validate operating hours JSON if provided
+        if (operatingHoursJson.trim()) {
+            try {
+                const operatingHours = JSON.parse(operatingHoursJson);
+                console.log('Operating hours JSON is valid');
+            } catch (error) {
+                e.preventDefault();
+                console.error('Operating hours JSON parse error:', error);
+                alert('Invalid JSON format for operating hours');
+                return false;
+            }
+        }
+        
+        console.log('Form validation passed, submitting form');
     });
 });
 </script>

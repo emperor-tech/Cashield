@@ -95,9 +95,9 @@
                             <td>
                                 <div class="flex items-center">
                                     <img class="h-8 w-8 rounded-full mr-2" 
-                                         src="https://ui-avatars.com/api/?name={{ urlencode($team->leader->name) }}" 
-                                         alt="{{ $team->leader->name }}">
-                                    <span>{{ $team->leader->name }}</span>
+                                         src="https://ui-avatars.com/api/?name={{ urlencode($team->leader?->name ?? 'Not assigned') }}" 
+                                         alt="{{ $team->leader?->name ?? 'Not assigned' }}">
+                                    <span>{{ $team->leader?->name ?? 'Not assigned' }}</span>
                                 </div>
                             </td>
                             <td>
@@ -123,7 +123,7 @@
                             <td>
                                 <div class="flex items-center">
                                     <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
-                                    {{ $team->zone->name ?? 'Unassigned' }}
+                                    {{ $team->zone?->name ?? 'Unassigned' }}
                                 </div>
                             </td>
                             <td>

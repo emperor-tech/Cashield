@@ -95,6 +95,28 @@
         </div>
     </div>
 
+    <!-- Incident Map -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Incident Map</h2>
+            <div class="flex gap-2">
+                <button class="map-filter-btn active" data-severity="all">
+                    <i class="fas fa-globe-americas mr-1"></i> All
+                </button>
+                <button class="map-filter-btn" data-severity="high">
+                    <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> High
+                </button>
+                <button class="map-filter-btn" data-severity="medium">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Medium
+                </button>
+                <button class="map-filter-btn" data-severity="low">
+                    <i class="fas fa-info-circle text-green-500 mr-1"></i> Low
+                </button>
+            </div>
+        </div>
+        <div id="incident-map" class="h-96 rounded-lg border-2 border-gray-200 dark:border-gray-700"></div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <a href="{{ route('reports.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg p-6 transition duration-200">
@@ -437,6 +459,181 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .animate-fade-out-down {
     animation: fadeOutDown 0.5s ease-out;
+}
+</style>
+
+<!-- MarkerCluster CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('incident-map').setView([
+        {{ config('integrations.maps_default_center.lat') }},
+        {{ config('integrations.maps_default_center.lng') }}
+    ], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Initialize marker clusters
+    const markers = {
+        all: L.markerClusterGroup({
+            maxClusterRadius: 50,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true
+        }),
+        high: L.markerClusterGroup({
+            maxClusterRadius: 50,
+            iconCreateFunction: (cluster) => {
+                return L.divIcon({
+                    html: `<div class=\"marker-cluster marker-cluster-large\"><div>${cluster.getChildCount()}</div></div>`,
+                    className: '',
+                    iconSize: L.point(40, 40)
+                });
+            }
+        }),
+        medium: L.markerClusterGroup({
+            maxClusterRadius: 50,
+            iconCreateFunction: (cluster) => {
+                return L.divIcon({
+                    html: `<div class=\"marker-cluster marker-cluster-medium\"><div>${cluster.getChildCount()}</div></div>`,
+                    className: '',
+                    iconSize: L.point(40, 40)
+                });
+            }
+        }),
+        low: L.markerClusterGroup({
+            maxClusterRadius: 50,
+            iconCreateFunction: (cluster) => {
+                return L.divIcon({
+                    html: `<div class=\"marker-cluster marker-cluster-small\"><div>${cluster.getChildCount()}</div></div>`,
+                    className: '',
+                    iconSize: L.point(40, 40)
+                });
+            }
+        })
+    };
+
+    // Add all marker clusters to map
+    Object.values(markers).forEach(markerGroup => map.addLayer(markerGroup));
+
+    // Function to create a marker
+    function createMarker(incident) {
+        const markerColor = incident.severity === 'high' ? 'red' : 
+                          incident.severity === 'medium' ? 'yellow' : 'green';
+        const markerHtml = `<div class=\"w-6 h-6 rounded-full bg-${markerColor}-500 border-2 border-white shadow-lg flex items-center justify-center\">`
+            + `<i class=\"fas fa-exclamation-triangle text-white text-xs\"></i></div>`;
+        const marker = L.marker([incident.lat, incident.lng], {
+            icon: L.divIcon({
+                className: `marker-${incident.severity}`,
+                html: markerHtml,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            })
+        });
+        const popupContent = `
+            <div class=\"p-3 min-w-[200px]\">
+                <div class=\"flex items-center justify-between mb-2\">
+                    <h3 class=\"font-bold text-gray-900\">${incident.location}</h3>
+                    <span class=\"px-2 py-1 text-xs rounded-full bg-${markerColor}-100 text-${markerColor}-800\">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span>
+                </div>
+                <div class=\"text-sm text-gray-700 mb-2\">${incident.description}</div>
+                <div class=\"text-xs text-gray-500\">${incident.created_at}</div>
+                <a href=\"${incident.url}\" class=\"block mt-2 text-blue-600 hover:text-blue-800\">View Details</a>
+            </div>
+        `;
+        marker.bindPopup(popupContent);
+        return marker;
+    }
+
+    // Fetch incidents and add to map
+    function loadIncidents() {
+        fetch('/incidents/json')
+            .then(res => res.json())
+            .then(incidents => {
+                // Clear all clusters
+                Object.values(markers).forEach(mg => mg.clearLayers());
+                incidents.forEach(incident => {
+                    const marker = createMarker(incident);
+                    markers.all.addLayer(marker);
+                    if (incident.severity === 'high') markers.high.addLayer(marker);
+                    if (incident.severity === 'medium') markers.medium.addLayer(marker);
+                    if (incident.severity === 'low') markers.low.addLayer(marker);
+                });
+            });
+    }
+    loadIncidents();
+    setInterval(loadIncidents, 60000); // Refresh every 60s
+
+    // Filtering
+    document.querySelectorAll('.map-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const severity = this.getAttribute('data-severity');
+            Object.values(markers).forEach(mg => map.removeLayer(mg));
+            if (severity === 'all') map.addLayer(markers.all);
+            if (severity === 'high') map.addLayer(markers.high);
+            if (severity === 'medium') map.addLayer(markers.medium);
+            if (severity === 'low') map.addLayer(markers.low);
+        });
+    });
+});
+</script>
+
+<style>
+.map-filter-btn {
+    @apply px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 
+           bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300
+           hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200
+           flex items-center justify-center min-w-[80px];
+}
+.map-filter-btn.active {
+    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+}
+.leaflet-container {
+    @apply font-sans;
+}
+.leaflet-popup-content-wrapper {
+    @apply rounded-lg shadow-lg;
+}
+.leaflet-popup-content {
+    @apply m-0 p-0;
+}
+.marker-cluster {
+    background-clip: padding-box;
+    border-radius: 20px;
+    @apply bg-white bg-opacity-80 dark:bg-gray-800 dark:bg-opacity-80;
+}
+.marker-cluster div {
+    width: 30px;
+    height: 30px;
+    margin-left: 5px;
+    margin-top: 5px;
+    text-align: center;
+    border-radius: 15px;
+    @apply font-bold flex items-center justify-center;
+}
+.marker-cluster-small {
+    @apply bg-green-100 dark:bg-green-900/30;
+}
+.marker-cluster-small div {
+    @apply bg-green-500 text-white;
+}
+.marker-cluster-medium {
+    @apply bg-yellow-100 dark:bg-yellow-900/30;
+}
+.marker-cluster-medium div {
+    @apply bg-yellow-500 text-white;
+}
+.marker-cluster-large {
+    @apply bg-red-100 dark:bg-red-900/30;
+}
+.marker-cluster-large div {
+    @apply bg-red-500 text-white;
 }
 </style>
 @endpush

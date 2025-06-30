@@ -135,9 +135,10 @@ class CampusZone extends Model
                 
                 // Log the audit record
                 AuditService::logAction(
-                    'update_risk_level',
                     'campus_zone',
                     $zone->id,
+                    'update_risk_level',
+                    'Zone risk level changed',
                     [
                         'old_level' => $oldLevel,
                         'new_level' => $newLevel,
@@ -149,9 +150,10 @@ class CampusZone extends Model
             // Track security level changes
             if ($zone->isDirty('security_level')) {
                 AuditService::logAction(
-                    'update_security_level',
                     'campus_zone',
                     $zone->id,
+                    'update_security_level',
+                    'Zone security level changed',
                     [
                         'old_level' => $zone->getOriginal('security_level'),
                         'new_level' => $zone->security_level,

@@ -11,7 +11,11 @@
   </div>
         <div>
             <label for="location" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Location</label>
-            <input type="text" name="location" id="location" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" required>
+            <div class="flex gap-2 items-center">
+                <input type="text" name="location" id="location" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" required>
+                <button type="button" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onclick="getLocation()">Use My Location</button>
+            </div>
+            <div id="map" class="w-full h-64 mt-2 rounded-lg"></div>
             @error('location')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
@@ -36,7 +40,9 @@
   </div>
         <div>
             <label for="media" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Attach Media (optional)</label>
-            <input type="file" name="media" id="media" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <input type="file" name="media[]" id="media" class="w-full border border-blue-200 dark:border-blue-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" multiple accept="*/*" onchange="previewFiles()">
+            <p class="text-xs text-gray-400 mt-1">You can upload up to 5 files of any format.</p>
+            <div id="filePreview" class="mt-2 flex flex-wrap gap-2"></div>
             @error('evidence')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
@@ -60,26 +66,122 @@
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const latitudeInput = document.getElementById('latitude');
-        const longitudeInput = document.getElementById('longitude');
-
-        // Attempt to get user's current location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                latitudeInput.value = position.coords.latitude;
-                longitudeInput.value = position.coords.longitude;
-            }, function (error) {
-                console.error("Error getting geolocation:", error);
-                // Optionally, inform the user that location could not be obtained
-                // and the report might not be creatable without it.
-            });
-        } else {
-            console.error("Geolocation is not supported by this browser.");
-            // Optionally, inform the user that geolocation is not supported
-            // and the report might not be creatable without it.
-        }
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            if (window.userMap) {
+                window.userMap.setView([lat, lng], 16);
+                if (window.userMarker) {
+                    window.userMarker.setLatLng([lat, lng]);
+                } else {
+                    window.userMarker = L.marker([lat, lng], {draggable: true}).addTo(window.userMap);
+                }
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.display_name) {
+                            document.getElementById('location').value = data.display_name;
+                        }
+                    });
+            }
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+function previewFiles() {
+    const input = document.getElementById('media');
+    const preview = document.getElementById('filePreview');
+    preview.innerHTML = '';
+    if (input.files.length > 5) {
+        alert('You can upload a maximum of 5 files.');
+        input.value = '';
+        return;
+    }
+    Array.from(input.files).forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'p-2 border rounded bg-gray-50 dark:bg-gray-700';
+        div.textContent = file.name;
+        preview.appendChild(div);
     });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const map = L.map('map').setView([6.5244, 3.3792], 12); // Default to Lagos
+    window.userMap = map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    let marker;
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            map.setView([lat, lng], 15);
+            marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+            window.userMarker = marker;
+            latitudeInput.value = lat;
+            longitudeInput.value = lng;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        document.getElementById('location').value = data.display_name;
+                    }
+                });
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                latitudeInput.value = e.latlng.lat;
+                longitudeInput.value = e.latlng.lng;
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.display_name) {
+                            document.getElementById('location').value = data.display_name;
+                        }
+                    });
+            });
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                latitudeInput.value = position.lat;
+                longitudeInput.value = position.lng;
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.display_name) {
+                            document.getElementById('location').value = data.display_name;
+                        }
+                    });
+            });
+        }, function (error) {
+            console.error("Error getting geolocation:", error);
+            map.on('click', function(e) {
+                if (marker) {
+                    marker.setLatLng(e.latlng);
+                } else {
+                    marker = L.marker(e.latlng, {draggable: true}).addTo(map);
+                    window.userMarker = marker;
+                }
+                latitudeInput.value = e.latlng.lat;
+                longitudeInput.value = e.latlng.lng;
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.display_name) {
+                            document.getElementById('location').value = data.display_name;
+                        }
+                    });
+            });
+        });
+    }
+});
 </script>
 @endpush

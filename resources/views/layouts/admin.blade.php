@@ -112,18 +112,46 @@
                                  x-transition:leave-start="transform opacity-100 scale-100"
                                  x-transition:leave-end="transform opacity-0 scale-95"
                                  class="mt-2 space-y-1 px-3">
-                                <a href="{{ route('admin.security.teams.index') }}" 
-                                   class="admin-nav-link-child {{ request()->routeIs('admin.security.teams.*') ? 'active' : '' }}">
-                                    Teams
-                                </a>
-                                <a href="{{ route('admin.security.zones.index') }}" 
-                                   class="admin-nav-link-child {{ request()->routeIs('admin.security.zones.*') ? 'active' : '' }}">
-                                    Zones
-                                </a>
-                                <a href="{{ route('admin.security.shifts.index') }}" 
-                                   class="admin-nav-link-child {{ request()->routeIs('admin.security.shifts.*') ? 'active' : '' }}">
-                                    Shifts
-                                </a>
+                                <!-- Teams Submenu -->
+                                <div x-data="{ open: {{ request()->routeIs('admin.security.teams.*') ? 'true' : 'false' }} }">
+                                    <button @click="open = !open" class="admin-nav-link-child w-full flex items-center justify-between">
+                                        Teams <i class="fas fa-chevron-down ml-auto transition-transform" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+                                    <div x-show="open" class="ml-4 space-y-1">
+                                        <a href="{{ route('admin.security.teams.index') }}" class="admin-nav-link-child">All Teams</a>
+                                        <a href="{{ route('admin.security.teams.create') }}" class="admin-nav-link-child">Create Team</a>
+                                    </div>
+                                </div>
+                                <!-- Zones Submenu -->
+                                <div x-data="{ open: {{ request()->routeIs('admin.security.zones.*') ? 'true' : 'false' }} }">
+                                    <button @click="open = !open" class="admin-nav-link-child w-full flex items-center justify-between">
+                                        Zones <i class="fas fa-chevron-down ml-auto transition-transform" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+                                    <div x-show="open" class="ml-4 space-y-1">
+                                        <a href="{{ route('admin.security.zones.index') }}" class="admin-nav-link-child">All Zones</a>
+                                        <a href="{{ route('admin.security.zones.create') }}" class="admin-nav-link-child">Create Zone</a>
+                                    </div>
+                                </div>
+                                <!-- Shifts Submenu -->
+                                <div x-data="{ open: {{ request()->routeIs('admin.security.shifts.*') ? 'true' : 'false' }} }">
+                                    <button @click="open = !open" class="admin-nav-link-child w-full flex items-center justify-between">
+                                        Shifts <i class="fas fa-chevron-down ml-auto transition-transform" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+                                    <div x-show="open" class="ml-4 space-y-1">
+                                        <a href="{{ route('admin.security.shifts.index') }}" class="admin-nav-link-child">All Shifts</a>
+                                        <a href="{{ route('admin.security.shifts.create') }}" class="admin-nav-link-child">Create Shift</a>
+                                    </div>
+                                </div>
+                                <!-- Checkpoints Submenu -->
+                                <div x-data="{ open: {{ request()->routeIs('admin.security.checkpoints.*') ? 'true' : 'false' }} }">
+                                    <button @click="open = !open" class="admin-nav-link-child w-full flex items-center justify-between">
+                                        Checkpoints <i class="fas fa-chevron-down ml-auto transition-transform" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+                                    <div x-show="open" class="ml-4 space-y-1">
+                                        <a href="{{ route('admin.security.checkpoints.index') }}" class="admin-nav-link-child">All Checkpoints</a>
+                                        <a href="{{ route('admin.security.checkpoints.create') }}" class="admin-nav-link-child">Create Checkpoint</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -195,135 +223,81 @@
 
         <!-- Main Content -->
         <div class="lg:pl-0 flex flex-col flex-1">
-            <!-- Top Navigation -->
-            <header class="admin-header-nav">
-                <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-                    <button @click="sidebarOpen = !sidebarOpen" 
-                            class="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+            <!-- Top Bar -->
+            <header class="admin-topbar flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow">
+                <div class="flex items-center space-x-4">
+                    <!-- Sidebar Toggle (Mobile) -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-gray-500 dark:text-gray-300 focus:outline-none">
                         <i class="fas fa-bars"></i>
                     </button>
-
-                    <div class="flex items-center space-x-4">
-                        <!-- Search -->
-                        <div class="hidden md:block">
-                            <div class="relative">
-                                <input type="text" 
-                                       class="admin-search-input" 
-                                       placeholder="Search...">
-                                <div class="admin-search-icon">
-                                    <i class="fas fa-search"></i>
-                                </div>
-                            </div>
+                    <!-- Quick Actions Dropdown -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="admin-btn-secondary flex items-center space-x-2">
+                            <i class="fas fa-bolt"></i>
+                            <span>Quick Actions</span>
+                            <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" class="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded shadow-lg z-50">
+                            <a href='{{ route('admin.security.teams.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>New Team</a>
+                            <a href='{{ route('admin.security.zones.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>New Zone</a>
+                            <a href='{{ route('admin.security.shifts.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>New Shift</a>
+                            <a href='{{ route('admin.security.checkpoints.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>New Checkpoint</a>
+                            <a href='{{ route('admin.reports.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>Create Report</a>
+                            <a href='{{ route('admin.users.create') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>Add User</a>
+                            <a href='{{ route('admin.reports.index') }}' class='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700'>All Reports</a>
                         </div>
-
-                        <!-- Notifications -->
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" 
-                                    class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white relative">
-                                <i class="fas fa-bell"></i>
-                                <span x-show="notificationCount > 0"
-                                      class="absolute top-0 right-0 -mt-1 -mr-1 px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white">
-                                    {{ 3 }}
-                                </span>
-                            </button>
-
-                            <!-- Notifications Dropdown -->
-                            <div x-show="open"
-                                 @click.away="open = false"
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute right-0 mt-2 w-80 rounded-lg shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-                                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Notification Bell -->
+                    <div x-data="{
+                        open: false,
+                        notifications: [],
+                        unreadCount: 0,
+                        fetchNotifications() {
+                            fetch('/admin/notifications/json')
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.notifications = data.notifications;
+                                    this.unreadCount = data.unread_count;
+                                });
+                        }
+                    }" x-init="fetchNotifications(); setInterval(fetchNotifications, 30000)" class="relative">
+                        <button @click="open = !open; if(open) fetchNotifications()" class="relative text-gray-500 dark:text-gray-300 focus:outline-none">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5"></span>
+                        </button>
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded shadow-lg z-50 max-h-96 overflow-y-auto">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700 font-semibold">Notifications</div>
+                            <template x-if="notifications.length === 0">
+                                <div class="p-4 text-gray-500 dark:text-gray-400">No notifications.</div>
+                            </template>
+                            <template x-for="notification in notifications" :key="notification.id">
+                                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-900 dark:text-white" x-text="notification.data.title || notification.title"></span>
+                                        <span class="text-xs text-gray-400" x-text="new Date(notification.created_at).toLocaleString()"></span>
+                                    </div>
+                                    <div class="text-sm text-gray-700 dark:text-gray-300 mt-1" x-text="notification.data.message || notification.message"></div>
                                 </div>
-                                <div class="max-h-64 overflow-y-auto">
-                                    <!-- Notification Items -->
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <p class="text-sm text-gray-900 dark:text-white">New report submitted</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">2 minutes ago</p>
-                                    </a>
-                                </div>
-                                <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                                    <a href="#" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                                        View all notifications
-                                    </a>
-                                </div>
-                            </div>
+                            </template>
                         </div>
-
-                        <!-- Quick Actions -->
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open"
-                                    class="admin-btn-secondary">
-                                <i class="fas fa-plus mr-2"></i>
-                                Quick Actions
-                            </button>
-
-                            <!-- Quick Actions Dropdown -->
-                            <div x-show="open"
-                                 @click.away="open = false"
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-                                <a href="{{ route('admin.reports.create') }}" 
-                                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-file-alt mr-2"></i>
-                                    New Report
-                                </a>
-                                <a href="{{ route('admin.users.create') }}" 
-                                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-user-plus mr-2"></i>
-                                    Add User
-                                </a>
-                                <a href="{{ route('admin.security.teams.create') }}" 
-                                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-users mr-2"></i>
-                                    New Team
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Profile Dropdown -->
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open"
-                                    class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                                <i class="fas fa-user-circle text-xl"></i>
-                            </button>
-
-                            <!-- Profile Dropdown Menu -->
-                            <div x-show="open"
-                                 @click.away="open = false"
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-                                <a href="{{ route('profile.edit') }}" 
-                                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    Your Profile
-                                </a>
-                                <a href="{{ route('admin.settings.general') }}" 
-                                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    Settings
-                                </a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        Sign out
-                                    </button>
-                                </form>
-                            </div>
+                    </div>
+                    <!-- User Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open"
+                                class="flex items-center space-x-2 focus:outline-none">
+                            <img src="{{ asset('images/avatar.png') }}" alt="Avatar" class="h-8 w-8 rounded-full">
+                            <span class="hidden md:inline text-gray-900 dark:text-white">{{ auth()->user()->name }}</span>
+                            <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded shadow-lg z-50">
+                            <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Your Profile</a>
+                            <a href="{{ route('admin.settings.general') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Sign Out</button>
+                            </form>
                         </div>
                     </div>
                 </div>

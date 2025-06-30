@@ -129,10 +129,37 @@
                         </button>
 
                         @auth
-                        <button class="relative focus:outline-none hover:bg-blue-700 rounded-full p-1 transition" aria-label="Notifications">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                            <span class="absolute -top-1 -right-1 bg-red-600 text-xs rounded-full px-1">!</span>
-                        </button>
+                        <div class="relative" x-data="{
+                            open: false,
+                            notifications: [],
+                            unreadCount: 0,
+                            fetchNotifications() {
+                                fetch('/notifications/json')
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        this.notifications = data.notifications || [];
+                                        this.unreadCount = data.unread_count || 0;
+                                    });
+                            }
+                        }" x-init="fetchNotifications(); setInterval(fetchNotifications, 30000)">
+                            <button @click="open = !open; if(open) fetchNotifications()" class="relative focus:outline-none hover:bg-blue-700 rounded-full p-1 transition" aria-label="Notifications">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5"></span>
+                            </button>
+                            <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50" style="display: none;">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 font-semibold">Notifications</div>
+                                <template x-if="notifications.length === 0">
+                                    <div class="p-4 text-gray-500 dark:text-gray-400">No notifications.</div>
+                                </template>
+                                <template x-for="notification in notifications" :key="notification.id">
+                                    <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                                        <span class="font-medium text-gray-900 dark:text-white" x-text="notification.data?.title || notification.title"></span>
+                                        <span class="text-xs text-gray-400 ml-2" x-text="new Date(notification.created_at).toLocaleString()"></span>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300 mt-1" x-text="notification.data?.message || notification.message"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                         <div class="relative" x-data="{ profileOpen: false }">
                             <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false" class="flex items-center space-x-2 hover:bg-blue-700 rounded-md p-2 transition">
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode(App\Helpers\AuthHelper::user()->name) }}&background=0D8ABC&color=fff" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white">
